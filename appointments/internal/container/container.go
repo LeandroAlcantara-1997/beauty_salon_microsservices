@@ -3,7 +3,7 @@ package container
 import (
 	"context"
 
-	"github.com/LeandroAlcantara-1997/Beauty_salon/appointment/internal/config"
+	"github.com/LeandroAlcantara-1997/appointment/internal/config"
 	"github.com/facily-tech/go-core/env"
 	"github.com/facily-tech/go-core/log"
 	"github.com/facily-tech/go-core/telemetry"

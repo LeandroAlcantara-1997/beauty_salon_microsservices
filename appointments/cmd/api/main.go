@@ -5,9 +5,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/LeandroAlcantara-1997/Beauty_salon/appointment/internal/api"
-	"github.com/LeandroAlcantara-1997/Beauty_salon/appointment/internal/config"
-	"github.com/LeandroAlcantara-1997/Beauty_salon/appointment/internal/container"
+	"github.com/LeandroAlcantara-1997/appointment/internal/api"
+	"github.com/LeandroAlcantara-1997/appointment/internal/config"
+	"github.com/LeandroAlcantara-1997/appointment/internal/container"
+
 	"github.com/facily-tech/go-core/env"
 	apiServer "github.com/facily-tech/go-core/http/server"
 	"github.com/facily-tech/go-core/types"
