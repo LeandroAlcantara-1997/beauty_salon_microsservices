@@ -1,6 +1,6 @@
 package mongo
 
-const Config_Prefix = "MONGO_"
+const ConfigPrefix = "MONGO_"
 
 type Config struct {
 	Host       string `env:"HOST, required"`

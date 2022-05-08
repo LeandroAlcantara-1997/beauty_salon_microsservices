@@ -12,16 +12,23 @@ type UpsertAppointment struct {
 }
 
 type DeleteAppointment struct {
-	ID string `json:"id"`
+	ID string `json:"id" validate:"required"`
 }
 
-type AppointmentResponse struct {
+type FindAppointmentsByIDRequest struct {
+	ID string `json:"id" validate:"required"`
+}
+
+type AppResponse struct {
 	ID              string    `json:"id"`
 	UserID          int       `json:"user_id"`
 	SalonID         int       `json:"salon_id"`
 	AppointmentDate time.Time `json:"appointment_date"`
 }
 
-func NewAppointmentResponse(appointment Appointment) AppointmentResponse {
-	return AppointmentResponse(appointment)
+type MakeAppointment struct {
+}
+
+func NewAppResponse(appointment Appointment) AppResponse {
+	return AppResponse(appointment)
 }

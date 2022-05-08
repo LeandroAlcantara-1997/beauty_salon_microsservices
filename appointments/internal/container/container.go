@@ -62,7 +62,7 @@ func New(ctx context.Context) (context.Context, *Dependency, error) {
 }
 func loadEnvs(ctx context.Context) (envs, error) {
 	mongoDB := mongoConfig.Config{}
-	if err := env.LoadEnv(ctx, &mongoDB, mongoConfig.Config_Prefix); err != nil {
+	if err := env.LoadEnv(ctx, &mongoDB, mongoConfig.ConfigPrefix); err != nil {
 		return envs{}, err
 	}
 

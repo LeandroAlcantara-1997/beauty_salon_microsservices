@@ -7,33 +7,33 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var fakeAppointmentReponse = AppointmentResponse{
+var fakeAppointmentReponse = AppResponse{
 	UserID:          1,
 	SalonID:         1,
 	AppointmentDate: time.Date(2022, 05, 12, 18, 30, 25, 12, time.Local),
 }
 
-var fakeAppointmentResponsessWithoutUserID = AppointmentResponse{
+var fakeAppResponsessWithoutUserID = AppResponse{
 	SalonID:         1,
 	AppointmentDate: time.Date(2022, 05, 12, 18, 30, 25, 12, time.Local),
 }
 
-var fakeUpsertAppointmentResponseWithoutSalonID = AppointmentResponse{
+var fakeUpsertAppResponseWithoutSalonID = AppResponse{
 	UserID:          1,
 	AppointmentDate: time.Date(2022, 05, 12, 18, 30, 25, 12, time.Local),
 }
 
-func TestNewAppointmentResponse(t *testing.T) {
+func TestNewAppResponse(t *testing.T) {
 	type args struct {
 		appointment Appointment
 	}
 	tests := []struct {
 		name string
 		args args
-		want AppointmentResponse
+		want AppResponse
 	}{
 		{
-			name: "success, created appointmentResponse with all values",
+			name: "success, created appResponse with all values",
 			args: args{
 				Appointment{
 					UserID:          1,
@@ -51,22 +51,22 @@ func TestNewAppointmentResponse(t *testing.T) {
 					AppointmentDate: time.Date(2022, 05, 12, 18, 30, 25, 12, time.Local),
 				},
 			},
-			want: fakeAppointmentResponsessWithoutUserID,
+			want: fakeAppResponsessWithoutUserID,
 		},
 		{
-			name: "success, created appointmentResponse without salonid",
+			name: "success, created appResponse without salonid",
 			args: args{
 				Appointment{
 					UserID:          1,
 					AppointmentDate: time.Date(2022, 05, 12, 18, 30, 25, 12, time.Local),
 				},
 			},
-			want: fakeUpsertAppointmentResponseWithoutSalonID,
+			want: fakeUpsertAppResponseWithoutSalonID,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewAppointmentResponse(tt.args.appointment)
+			got := NewAppResponse(tt.args.appointment)
 			assert.Equal(t, tt.want, got)
 		})
 	}
