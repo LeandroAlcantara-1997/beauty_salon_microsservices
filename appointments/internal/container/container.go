@@ -2,19 +2,28 @@ package container
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/LeandroAlcantara-1997/appointment/internal/config"
+	mongoConfig "github.com/LeandroAlcantara-1997/appointment/pkg/core/mongo"
 	"github.com/facily-tech/go-core/env"
 	"github.com/facily-tech/go-core/log"
 	"github.com/facily-tech/go-core/telemetry"
 	"github.com/facily-tech/go-core/types"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+type envs struct {
+	Mongo mongoConfig.Config
+}
 
 // Components are a like service, but it doesn't include business case
 // Or domains, but likely used by multiple domains
 type components struct {
-	Log    log.Logger
-	Tracer telemetry.Tracer
+	Log         log.Logger
+	Tracer      telemetry.Tracer
+	MongoClient *mongo.Client
 	// Include your new components bellow
 }
 
@@ -30,7 +39,12 @@ type Dependency struct {
 }
 
 func New(ctx context.Context) (context.Context, *Dependency, error) {
-	cmp, err := setupComponents(ctx)
+	envs, err := loadEnvs(ctx)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	cmp, err := setupComponents(ctx, envs)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -46,8 +60,18 @@ func New(ctx context.Context) (context.Context, *Dependency, error) {
 
 	return ctx, &dep, err
 }
+func loadEnvs(ctx context.Context) (envs, error) {
+	mongoDB := mongoConfig.Config{}
+	if err := env.LoadEnv(ctx, &mongoDB, mongoConfig.Config_Prefix); err != nil {
+		return envs{}, err
+	}
 
-func setupComponents(ctx context.Context) (*components, error) {
+	return envs{
+		Mongo: mongoDB,
+	}, nil
+}
+
+func setupComponents(ctx context.Context, envs envs) (*components, error) {
 	version, ok := ctx.Value(types.ContextKey(types.Version)).(*config.Version)
 	if !ok {
 		return nil, config.ErrVersionTypeAssertion
@@ -78,9 +102,15 @@ func setupComponents(ctx context.Context) (*components, error) {
 		return nil, err
 	}
 
+	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:27017/%s",
+		envs.Mongo.User, envs.Mongo.Password, envs.Mongo.Host, envs.Mongo.Collection)))
+	if err != nil {
+		return nil, err
+	}
 	return &components{
-		Log:    l,
-		Tracer: tracer,
+		Log:         l,
+		Tracer:      tracer,
+		MongoClient: client,
 		// include components initialized bellow here
 	}, nil
 }
