@@ -19,6 +19,8 @@ var (
 	ErrEmptyRepository = errors.New("empty repository")
 	// ErrTypeAssertion arises while trying to perform interface{}.(T)
 	ErrTypeAssertion = errors.New("unable to execute type assertion")
+	ErrNotFound      = errors.New("Appointment not found")
+	ErrDatabase      = errors.New("An error happened in database")
 )
 
 type errorResponse struct {
@@ -33,6 +35,8 @@ type restError map[error]errorResponse
 var RESTErrorBussines = restError{
 	ErrNew:        {"Sorry, we cannot create a new quote", http.StatusInternalServerError},
 	sql.ErrNoRows: {"Record not found", http.StatusNotFound},
+	ErrNotFound:   {"Appointment not found", http.StatusBadRequest},
+	ErrDatabase:   {"An error happened in database", http.StatusBadRequest},
 }
 
 func (re restError) ErrorProcess(err error) (string, int) {

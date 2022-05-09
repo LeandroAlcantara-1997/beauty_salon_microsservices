@@ -3,17 +3,17 @@ package service
 import (
 	"testing"
 
+	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
 	"github.com/facily-tech/go-core/log"
 	"github.com/stretchr/testify/assert"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func TestNewService(t *testing.T) {
 	l, err := log.NewLoggerZap(log.ZapConfig{})
 	assert.NoError(t, err)
-	var mo *mongo.Client
-	repo := repository.NewMongoRepostory(mo, "test", "test")
+	// var mo *mongo.Client
+	// repo := repository.NewMongoRepostory(mo, "test", "testCollection")
 	type args struct {
 		l          log.Logger
 		repository repository.AppointmentRepositoryI
@@ -24,13 +24,21 @@ func TestNewService(t *testing.T) {
 		want *Service
 		err  error
 	}{
+		// {
+		// 	name: "success, initialized NewService",
+		// 	args: args{
+		// 		l:          l,
+		// 		repository: repo,
+		// 	},
+		// 	err: nil,
+		// },
 		{
-			name: "success, initialized NewService",
+			name: "fail, nil repository",
 			args: args{
 				l:          l,
-				repository: repo,
+				repository: nil,
 			},
-			err: nil,
+			err: appErr.ErrEmptyRepository,
 		},
 	}
 	for _, tt := range tests {

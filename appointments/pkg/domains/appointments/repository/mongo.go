@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 
+	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/model"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -24,21 +26,21 @@ func NewMongoRepostory(client *mongo.Client, database, collection string) *Mongo
 	}
 }
 
-func (m *MongoRepository) Create(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
+func (m *MongoRepository) CreateAppointment(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
 	var (
 		result *mongo.InsertOneResult
 		err    error
 	)
 	coll := m.client.Database(m.database).Collection(m.collection)
 	if result, err = coll.InsertOne(ctx, &app); err != nil {
-		return nil, err
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
 	app.ID = fmt.Sprintf("%v", result.InsertedID)
 	return &app, nil
 }
 
-func (m *MongoRepository) Update(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
+func (m *MongoRepository) UpdateAppointment(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
 	var (
 		result       *mongo.SingleResult
 		updateApp    model.Appointment
@@ -47,7 +49,7 @@ func (m *MongoRepository) Update(ctx context.Context, app model.Appointment) (*m
 	)
 	coll := m.client.Database(m.database).Collection(m.collection)
 	if err = coll.FindOne(ctx, bson.M{"_id": app.ID}).Decode(&updateApp); err != nil {
-		return nil, result.Err()
+		return nil, errors.Wrap(appErr.ErrDatabase, result.Err().Error())
 	}
 
 	if updateResult, err = coll.UpdateByID(ctx, updateApp.ID, &app); err != nil {
@@ -58,7 +60,21 @@ func (m *MongoRepository) Update(ctx context.Context, app model.Appointment) (*m
 	return &app, nil
 }
 
-func (m *MongoRepository) FindAll(ctx context.Context) ([]model.Appointment, error) {
+func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) error {
+	coll := m.client.Database(m.database).Collection(m.collection)
+	result, err := coll.DeleteOne(ctx, bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+
+	if result.DeletedCount == 0 {
+		return err
+	}
+
+	return nil
+}
+
+func (m *MongoRepository) FindAllAppointments(ctx context.Context) ([]model.Appointment, error) {
 	var app []model.Appointment
 	coll := m.client.Database(m.database).Collection(m.collection)
 	cur, err := coll.Find(ctx, bson.D{}, options.Find())
