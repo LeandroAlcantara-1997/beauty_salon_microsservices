@@ -10,10 +10,10 @@ import (
 )
 
 //go:generate mockgen -destination service_mock.go -package=service -source=service.go
-type ServiceInterface interface {
+type ServiceI interface {
 	CreateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	UpdateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
-	MakeAppointment(context.Context) ([]model.AppResponse, error)
+	// MakeAppointment(context.Context) ([]model.AppResponse, error)
 	FindAllAppointments(context.Context) ([]model.AppResponse, error)
 	FindAppByID(context.Context, model.FindAppointmentsByIDRequest) (*model.AppResponse, error)
 	FindAppByUserID(context.Context, model.FindAppByUser) ([]model.AppResponse, error)
@@ -59,7 +59,7 @@ func (s *Service) UpdateAppointment(ctx context.Context, app model.UpsertAppoint
 	return &appReponse, nil
 }
 
-func (s *Service) FindAllApointments(ctx context.Context) ([]model.AppResponse, error) {
+func (s *Service) FindAllAppointments(ctx context.Context) ([]model.AppResponse, error) {
 	findAll, err := s.repository.FindAllAppointments(ctx)
 	if err != nil {
 		return nil, err
@@ -100,11 +100,11 @@ func (s *Service) FindAppBySalonID(ctx context.Context, id model.FindAppBySalon)
 	return appResponse, nil
 }
 
-func (s *Service) MakeAppointment(ctx context.Context) ([]model.AppResponse, error) {
-	app, err := s.repository.MakeAppointment(ctx)
-	if err != nil {
-		return nil, err
-	}
-	appResponse := model.NewAppResponseSlice(app)
-	return appResponse, nil
-}
+// func (s *Service) MakeAppointment(ctx context.Context) ([]model.AppResponse, error) {
+// 	app, err := s.repository.MakeAppointment(ctx)
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	appResponse := model.NewAppResponseSlice(app)
+// 	return appResponse, nil
+// }

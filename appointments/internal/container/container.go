@@ -6,6 +6,8 @@ import (
 
 	"github.com/LeandroAlcantara-1997/appointment/internal/config"
 	mongoConfig "github.com/LeandroAlcantara-1997/appointment/pkg/core/mongo"
+	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
+	app "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/service"
 	"github.com/facily-tech/go-core/env"
 	"github.com/facily-tech/go-core/log"
 	"github.com/facily-tech/go-core/telemetry"
@@ -30,7 +32,7 @@ type components struct {
 // Services hold the business case, and make the bridge between
 // Controllers and Domains
 type Services struct {
-	// Include your new services bellow
+	Appointments app.ServiceI
 }
 
 type Dependency struct {
@@ -49,8 +51,21 @@ func New(ctx context.Context) (context.Context, *Dependency, error) {
 		return nil, nil, err
 	}
 
+	apService, err := app.NewService(
+		cmp.Log,
+		repository.NewMongoRepostory(
+			cmp.MongoClient,
+			envs.Mongo.Database,
+			envs.Mongo.Collection,
+		),
+	)
+	if err != nil {
+		return nil, nil, err
+	}
+
 	srv := Services{
 		// include services initialized above here
+		apService,
 	}
 
 	dep := Dependency{
@@ -102,8 +117,11 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 		return nil, err
 	}
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:27017/%s",
-		envs.Mongo.User, envs.Mongo.Password, envs.Mongo.Host, envs.Mongo.Collection)))
+	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:27017",
+		envs.Mongo.User,
+		envs.Mongo.Password,
+		envs.Mongo.Host)))
+
 	if err != nil {
 		return nil, err
 	}

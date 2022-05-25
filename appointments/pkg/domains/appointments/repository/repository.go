@@ -18,13 +18,13 @@ type Querier interface {
 	FindAppointmentByID(context.Context, string) (*model.Appointment, error)
 	FindAppointmentByUserID(context.Context, int) ([]model.Appointment, error)
 	FindAppointmentBySalonID(context.Context, int) ([]model.Appointment, error)
-	MakeAppointment(context.Context) ([]model.Appointment, error)
+	// MakeAppointment(context.Context) ([]model.Appointment, error)
 }
 
 type Execer interface {
 	CreateAppointment(context.Context, model.Appointment) (*model.Appointment, error)
 	UpdateAppointment(context.Context, model.Appointment) (*model.Appointment, error)
-	DeleteAppointment(context.Context, string) error
+	// DeleteAppointment(context.Context, string) error
 }
 
 type AppointmentMemotyI interface {

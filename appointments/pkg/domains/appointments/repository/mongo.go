@@ -8,6 +8,7 @@ import (
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/model"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -41,23 +42,19 @@ func (m *MongoRepository) CreateAppointment(ctx context.Context, app model.Appoi
 }
 
 func (m *MongoRepository) UpdateAppointment(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
-	var (
-		result       *mongo.SingleResult
-		updateApp    model.Appointment
-		updateResult *mongo.UpdateResult
-		err          error
-	)
+	var updateApp model.Appointment
+	id, err := primitive.ObjectIDFromHex(app.ID)
+	if err != nil {
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+
+	app.ID = ""
 	coll := m.client.Database(m.database).Collection(m.collection)
-	if err = coll.FindOne(ctx, bson.M{"_id": app.ID}).Decode(&updateApp); err != nil {
-		return nil, errors.Wrap(appErr.ErrDatabase, result.Err().Error())
+	if err := coll.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": &app}).Decode(&updateApp); err != nil {
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
-	if updateResult, err = coll.UpdateByID(ctx, updateApp.ID, &app); err != nil {
-		return nil, err
-	}
-	app.ID = fmt.Sprintf("%v", updateResult.UpsertedID)
-
-	return &app, nil
+	return &updateApp, nil
 }
 
 func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) error {
@@ -89,9 +86,14 @@ func (m *MongoRepository) FindAllAppointments(ctx context.Context) ([]model.Appo
 }
 
 func (m *MongoRepository) FindAppointmentByID(ctx context.Context, id string) (*model.Appointment, error) {
+	_id, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return nil, err
+	}
+
 	var app model.Appointment
 	coll := m.client.Database(m.database).Collection(m.collection)
-	if err := coll.FindOne(ctx, bson.M{"_id": id}).Decode(&app); err != nil {
+	if err := coll.FindOne(ctx, bson.M{"_id": _id}).Decode(&app); err != nil {
 		return nil, err
 	}
 	return &app, nil
@@ -112,17 +114,15 @@ func (m *MongoRepository) MakeAppointment(ctx context.Context) ([]model.Appointm
 }
 
 func (m *MongoRepository) FindAppointmentByUserID(ctx context.Context, id int) ([]model.Appointment, error) {
-	var (
-		cursor *mongo.Cursor
-		app    []model.Appointment
-		err    error
-	)
+	app := make([]model.Appointment, 0)
+	filter := bson.M{"user_id": id}
 	coll := m.client.Database(m.database).Collection(m.collection)
-	if cursor, err = coll.Find(ctx, bson.M{"user_id": id}, options.Find()); err != nil {
+	cursor, err := coll.Find(ctx, filter, options.Find())
+	if err != nil {
 		return nil, err
 	}
 
-	if err = cursor.Decode(&app); err != nil {
+	if err = cursor.All(ctx, &app); err != nil {
 		return nil, err
 	}
 
@@ -130,17 +130,15 @@ func (m *MongoRepository) FindAppointmentByUserID(ctx context.Context, id int) (
 }
 
 func (m *MongoRepository) FindAppointmentBySalonID(ctx context.Context, id int) ([]model.Appointment, error) {
-	var (
-		cursor *mongo.Cursor
-		app    []model.Appointment
-		err    error
-	)
+	app := make([]model.Appointment, 0)
+	filter := bson.M{"salon_id": id}
 	coll := m.client.Database(m.database).Collection(m.collection)
-	if cursor, err = coll.Find(ctx, bson.M{"salon_id": id}, options.Find()); err != nil {
+	cursor, err := coll.Find(ctx, filter, options.Find())
+	if err != nil {
 		return nil, err
 	}
 
-	if err = cursor.Decode(&app); err != nil {
+	if err = cursor.All(ctx, &app); err != nil {
 		return nil, err
 	}
 

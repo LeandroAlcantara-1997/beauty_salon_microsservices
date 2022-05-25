@@ -7,6 +7,7 @@ import (
 	coreMiddleware "github.com/facily-tech/go-core/http/server/middleware"
 
 	"github.com/LeandroAlcantara-1997/appointment/internal/container"
+	appTransport "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/transport"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -23,5 +24,7 @@ func Handler(ctx context.Context, dep *container.Dependency) http.Handler {
 	r.Handle("/metrics", promhttp.Handler())
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {})
 
+	appointmentHandler := appTransport.NewHTTPHandler(dep.Services.Appointments)
+	r.Mount("/v1/appointment", appointmentHandler)
 	return r
 }
