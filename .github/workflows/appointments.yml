@@ -1,0 +1,30 @@
+name: appointments
+
+on: [push, pull_request]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.17
+
+    - name: Build
+      run: |
+        cd appointments
+        make build
+    - name: Test
+      run: |
+        cd appointments
+        make test
+    - name: Lint
+      run: |
+        sudo apt-get install curl
+        curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.1
+        cd appointments
+        make lint
