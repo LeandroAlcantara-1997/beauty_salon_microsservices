@@ -13,9 +13,13 @@ import (
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/service"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-kit/kit/transport/http"
+	"github.com/go-playground/validator/v10"
+	"github.com/pkg/errors"
 )
 
-func NewHTTPHandler(svc service.ServiceI) stdHTTP.Handler {
+var validate = validator.New()
+
+func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 	options := []http.ServerOption{
 		http.ServerErrorEncoder(errorHandler),
 	}
@@ -62,6 +66,26 @@ func NewHTTPHandler(svc service.ServiceI) stdHTTP.Handler {
 		options...,
 	)
 
+	makeApp := http.NewServer(
+		appointments.MakeAppointmentByUser(svc),
+		decodeMakeAppointment,
+		codeHTTP{200}.encodeResponse,
+		options...,
+	)
+
+	availableApp := http.NewServer(
+		appointments.AvailableAppointment(svc),
+		decodeAvailableApp,
+		codeHTTP{200}.encodeResponse,
+		options...,
+	)
+	deleteApp := http.NewServer(
+		appointments.DeleteAppointment(svc),
+		decodeDeleteApp,
+		codeHTTP{204}.encodeResponse,
+		options...,
+	)
+
 	r := chi.NewRouter()
 
 	r.Post("/", createApp.ServeHTTP)
@@ -69,7 +93,10 @@ func NewHTTPHandler(svc service.ServiceI) stdHTTP.Handler {
 	r.Get("/", findAllApp.ServeHTTP)
 	r.Get("/user/{id}", findAppByUserID.ServeHTTP)
 	r.Get("/salon/{id}", findAppBySalonID.ServeHTTP)
+	r.Get("/available", availableApp.ServeHTTP)
 	r.Put("/{id}", updateApp.ServeHTTP)
+	r.Put("/make/{id}", makeApp.ServeHTTP)
+	r.Delete("/{id}", deleteApp.ServeHTTP)
 
 	return r
 }
@@ -88,6 +115,9 @@ func decodeCreateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 		return nil, appErr.ErrInvalidBody
 	}
 
+	if err := validate.Struct(app); err != nil {
+		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
+	}
 	return app, nil
 }
 
@@ -99,6 +129,10 @@ func decodeUpdateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 
 	if err := json.NewDecoder(r.Body).Decode(&app); err != nil {
 		return nil, appErr.ErrInvalidBody
+	}
+
+	if err := validate.Struct(app); err != nil {
+		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
 	}
 
 	return app, nil
@@ -130,6 +164,30 @@ func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error
 	}
 
 	return app, nil
+}
+
+func decodeMakeAppointment(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var (
+		app model.MakeAppointment
+		err error
+	)
+	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
+		return nil, err
+	}
+
+	return app, nil
+}
+
+func decodeDeleteApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var app model.DeleteAppointment
+	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
+		return nil, appErr.ErrInvalidPath
+	}
+	return app, nil
+}
+
+func decodeAvailableApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	return nil, nil
 }
 
 type codeHTTP struct {

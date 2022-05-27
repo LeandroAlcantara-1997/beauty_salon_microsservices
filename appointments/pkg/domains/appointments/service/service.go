@@ -10,14 +10,16 @@ import (
 )
 
 //go:generate mockgen -destination service_mock.go -package=service -source=service.go
-type ServiceI interface {
+type AppointmentService interface {
 	CreateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	UpdateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
-	// MakeAppointment(context.Context) ([]model.AppResponse, error)
+	MakeAppointment(context.Context, model.MakeAppointment) ([]model.AppResponse, error)
 	FindAllAppointments(context.Context) ([]model.AppResponse, error)
+	FindAvailableAppointments(context.Context) ([]model.AppResponse, error)
 	FindAppByID(context.Context, model.FindAppointmentsByIDRequest) (*model.AppResponse, error)
 	FindAppByUserID(context.Context, model.FindAppByUser) ([]model.AppResponse, error)
 	FindAppBySalonID(context.Context, model.FindAppBySalon) ([]model.AppResponse, error)
+	DeleteApp(context.Context, model.DeleteAppointment) error
 }
 
 type Service struct {
@@ -65,7 +67,18 @@ func (s *Service) FindAllAppointments(ctx context.Context) ([]model.AppResponse,
 		return nil, err
 	}
 	findAllResponse := model.NewAppResponseSlice(findAll)
+
 	return findAllResponse, nil
+}
+
+func (s *Service) FindAvailableAppointments(ctx context.Context) ([]model.AppResponse, error) {
+	app, err := s.repository.AvaiableAppointment(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	avaiableResponse := model.NewAppResponseSlice(app)
+	return avaiableResponse, nil
 }
 
 func (s *Service) FindAppByID(ctx context.Context, app model.FindAppointmentsByIDRequest) (*model.AppResponse, error) {
@@ -100,11 +113,19 @@ func (s *Service) FindAppBySalonID(ctx context.Context, id model.FindAppBySalon)
 	return appResponse, nil
 }
 
-// func (s *Service) MakeAppointment(ctx context.Context) ([]model.AppResponse, error) {
-// 	app, err := s.repository.MakeAppointment(ctx)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	appResponse := model.NewAppResponseSlice(app)
-// 	return appResponse, nil
-// }
+func (s *Service) MakeAppointment(ctx context.Context, make model.MakeAppointment) ([]model.AppResponse, error) {
+	app, err := s.repository.MakeAppointment(ctx, make.ID)
+	if err != nil {
+		return nil, err
+	}
+	appResponse := model.NewAppResponseSlice(app)
+	return appResponse, nil
+}
+
+func (s *Service) DeleteApp(ctx context.Context, app model.DeleteAppointment) error {
+	if err := s.repository.DeleteAppointment(ctx, app.ID); err != nil {
+		return err
+	}
+
+	return nil
+}

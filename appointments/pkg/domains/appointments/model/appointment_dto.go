@@ -12,19 +12,19 @@ type UpsertAppointment struct {
 }
 
 type DeleteAppointment struct {
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id"`
 }
 
 type FindAppointmentsByIDRequest struct {
-	ID string `json:"id" validate:"required"`
+	ID string `json:"id"`
 }
 
 type FindAppByUser struct {
-	ID int `json:"id" validate:"required"`
+	ID int `json:"id"`
 }
 
 type FindAppBySalon struct {
-	ID int `json:"id" validate:"required"`
+	ID int `json:"id"`
 }
 
 type AppResponse struct {
@@ -35,6 +35,7 @@ type AppResponse struct {
 }
 
 type MakeAppointment struct {
+	ID int
 }
 
 func NewAppResponse(appointment Appointment) AppResponse {
@@ -42,7 +43,7 @@ func NewAppResponse(appointment Appointment) AppResponse {
 }
 
 func NewAppResponseSlice(appointment []Appointment) []AppResponse {
-	app := make([]AppResponse, len(appointment))
+	app := make([]AppResponse, 0)
 	for _, ap := range appointment {
 		app = append(app, NewAppResponse(ap))
 	}

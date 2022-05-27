@@ -28,12 +28,9 @@ func NewMongoRepostory(client *mongo.Client, database, collection string) *Mongo
 }
 
 func (m *MongoRepository) CreateAppointment(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
-	var (
-		result *mongo.InsertOneResult
-		err    error
-	)
 	coll := m.client.Database(m.database).Collection(m.collection)
-	if result, err = coll.InsertOne(ctx, &app); err != nil {
+	result, err := coll.InsertOne(ctx, &app)
+	if err != nil {
 		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
@@ -58,8 +55,12 @@ func (m *MongoRepository) UpdateAppointment(ctx context.Context, app model.Appoi
 }
 
 func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) error {
+	_id, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
 	coll := m.client.Database(m.database).Collection(m.collection)
-	result, err := coll.DeleteOne(ctx, bson.M{"_id": id})
+	result, err := coll.DeleteOne(ctx, bson.M{"_id": _id})
 	if err != nil {
 		return err
 	}
@@ -72,7 +73,7 @@ func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) erro
 }
 
 func (m *MongoRepository) FindAllAppointments(ctx context.Context) ([]model.Appointment, error) {
-	var app []model.Appointment
+	app := make([]model.Appointment, 0)
 	coll := m.client.Database(m.database).Collection(m.collection)
 	cur, err := coll.Find(ctx, bson.D{}, options.Find())
 	if err != nil {
@@ -99,7 +100,7 @@ func (m *MongoRepository) FindAppointmentByID(ctx context.Context, id string) (*
 	return &app, nil
 }
 
-func (m *MongoRepository) MakeAppointment(ctx context.Context) ([]model.Appointment, error) {
+func (m *MongoRepository) MakeAppointment(ctx context.Context, id int) ([]model.Appointment, error) {
 	var app []model.Appointment
 	coll := m.client.Database(m.database).Collection(m.collection)
 	cursor, err := coll.Find(ctx, bson.M{"user_id": nil})
@@ -142,5 +143,20 @@ func (m *MongoRepository) FindAppointmentBySalonID(ctx context.Context, id int) 
 		return nil, err
 	}
 
+	return app, nil
+}
+
+func (m *MongoRepository) AvaiableAppointment(ctx context.Context) ([]model.Appointment, error) {
+	app := make([]model.Appointment, 0)
+	coll := m.client.Database(m.database).Collection(m.collection)
+	filter := bson.M{"user_id": 0}
+	cur, err := coll.Find(ctx, filter, options.Find())
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cur.All(ctx, &app); err != nil {
+		return nil, err
+	}
 	return app, nil
 }

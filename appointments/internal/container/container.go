@@ -32,7 +32,7 @@ type components struct {
 // Services hold the business case, and make the bridge between
 // Controllers and Domains
 type Services struct {
-	Appointments app.ServiceI
+	Appointments app.AppointmentService
 }
 
 type Dependency struct {
