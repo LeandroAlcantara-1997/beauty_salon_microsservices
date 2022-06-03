@@ -27,7 +27,7 @@ func Test_decodeFindAppByID(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "success, decodified transport",
+			name: "success, decodified find app by id",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -44,7 +44,7 @@ func Test_decodeFindAppByID(t *testing.T) {
 			want: model.FindAppointmentsByIDRequest{ID: "628ed8e442c5ab8d69b6d4fa"},
 		},
 		{
-			name: "fail, cannot decodified transport",
+			name: "fail, cannot decodified find app by id",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -140,7 +140,7 @@ func Test_decodeUpdateApp(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "success, decodified new updateApp",
+			name: "success, decodified new update app",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -168,7 +168,7 @@ func Test_decodeUpdateApp(t *testing.T) {
 			},
 		},
 		{
-			name: "fail, cannot decodified new updateApp",
+			name: "fail, cannot decodified new update app",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -246,7 +246,7 @@ func Test_decodeAppByUser(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "success, decodified new FindAppByUser",
+			name: "success, decodified new find app by user",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -309,7 +309,7 @@ func Test_decodeAppBySalon(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "success, decodified new FindAppBySalon",
+			name: "success, decodified new find app by salon",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -372,7 +372,7 @@ func Test_decodeMakeAppointment(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "success, decodified new makea ppointment",
+			name: "success, decodified new make appointment",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(

@@ -10,20 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// var fakeApp = model.UpsertAppointment{
-// 	ID:              "123",
-// 	UserID:          1,
-// 	SalonID:         1,
-// 	AppointmentDate: time.Date(2022, 12, 24, 22, 30, 20, 10, time.Local),
-// }
-
-// var fakeAppResponse = model.AppResponse{
-// 	ID:              "123",
-// 	UserID:          1,
-// 	SalonID:         1,
-// 	AppointmentDate: time.Date(2022, 12, 24, 22, 30, 20, 10, time.Local),
-// }
-
 func TestNewService(t *testing.T) {
 	var l log.Logger
 	var ctrl *gomock.Controller
@@ -49,7 +35,7 @@ func TestNewService(t *testing.T) {
 			want: &srv,
 		},
 		{
-			name: "fail, service do not created",
+			name: "fail, service cannot be created",
 			args: args{
 				l:          l,
 				repository: nil,

@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateAppointmentByID(svc service.AppointmentService) endpoint.Endpoint {
+func CreateAppointment(svc service.AppointmentService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.UpsertAppointment)
 		if !ok {

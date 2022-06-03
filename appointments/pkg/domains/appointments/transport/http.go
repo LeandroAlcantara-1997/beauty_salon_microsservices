@@ -25,7 +25,7 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 	}
 
 	createApp := http.NewServer(
-		appointments.CreateAppointmentByID(svc),
+		appointments.CreateAppointment(svc),
 		decodeCreateApp,
 		codeHTTP{201}.encodeResponse,
 		options...,
