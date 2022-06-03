@@ -213,7 +213,7 @@ func Test_decodeAllApp(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "sucess, decodified new get all appointments",
+			name: "success, decodified new get all appointments",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
@@ -485,12 +485,12 @@ func Test_decodeAvailableApp(t *testing.T) {
 		err  error
 	}{
 		{
-			name: "sucess, decodified avaiable appointments",
+			name: "success, decodified available appointments",
 			args: args{
 				ctx: context.Background(),
 				r: httptest.NewRequest(
 					"GET",
-					"/avaiable",
+					"/available",
 					strings.NewReader(``),
 				),
 			},
