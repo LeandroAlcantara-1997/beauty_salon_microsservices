@@ -21,6 +21,7 @@ jobs:
     - name: Test
       run: |
         cd appointments
+        make generate
         make test
     - name: Lint
       run: |
