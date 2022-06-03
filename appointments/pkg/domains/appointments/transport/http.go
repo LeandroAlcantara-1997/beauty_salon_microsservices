@@ -148,7 +148,7 @@ func decodeAppByUser(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 		err error
 	)
 	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
-		return nil, err
+		return nil, appErr.ErrInvalidPath
 	}
 
 	return app, nil
@@ -160,7 +160,7 @@ func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error
 		err error
 	)
 	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
-		return nil, err
+		return nil, appErr.ErrInvalidPath
 	}
 
 	return app, nil
@@ -172,7 +172,7 @@ func decodeMakeAppointment(_ context.Context, r *stdHTTP.Request) (interface{}, 
 		err error
 	)
 	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
-		return nil, err
+		return nil, appErr.ErrInvalidPath
 	}
 
 	return app, nil
