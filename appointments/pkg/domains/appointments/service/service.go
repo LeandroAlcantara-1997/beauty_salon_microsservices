@@ -24,16 +24,22 @@ type AppointmentService interface {
 
 type Service struct {
 	repository repository.AppointmentRepositoryI
+	memory     repository.AppointmentMemoryI
 	log        log.Logger
 }
 
-func NewService(l log.Logger, repository repository.AppointmentRepositoryI) (*Service, error) {
-	if repository == nil {
+func NewService(l log.Logger, r repository.AppointmentRepositoryI, m repository.AppointmentMemoryI) (*Service, error) {
+	if r == nil {
+		return nil, appErr.ErrEmptyRepository
+	}
+
+	if m == nil {
 		return nil, appErr.ErrEmptyRepository
 	}
 	return &Service{
 		log:        l,
-		repository: repository,
+		repository: r,
+		memory:     m,
 	}, nil
 }
 
@@ -45,6 +51,7 @@ func (s *Service) CreateAppointment(ctx context.Context, app model.UpsertAppoint
 	if appPersistence, err = s.repository.CreateAppointment(ctx, model.NewAppointment(app)); err != nil {
 		return nil, err
 	}
+
 	appResponse := model.NewAppResponse(*appPersistence)
 	return &appResponse, nil
 }
@@ -82,12 +89,15 @@ func (s *Service) FindAvailableAppointments(ctx context.Context) ([]model.AppRes
 }
 
 func (s *Service) FindAppByID(ctx context.Context, app model.FindAppointmentsByIDRequest) (*model.AppResponse, error) {
-	var (
-		findByID *model.Appointment
-		err      error
-	)
-	if findByID, err = s.repository.FindAppointmentByID(ctx, app.ID); err != nil {
-		return nil, err
+	findByID, err := s.memory.FindAppByIDMemory(app.ID)
+	if err != nil {
+		if findByID, err = s.repository.FindAppointmentByID(ctx, app.ID); err != nil {
+			return nil, err
+		}
+		_ = s.memory.CreateAppMemoryByID(*findByID)
+
+		findByIDResp := model.NewAppResponse(*findByID)
+		return &findByIDResp, nil
 	}
 
 	findByIDResponse := model.NewAppResponse(*findByID)
@@ -95,20 +105,33 @@ func (s *Service) FindAppByID(ctx context.Context, app model.FindAppointmentsByI
 }
 
 func (s *Service) FindAppByUserID(ctx context.Context, id model.FindAppByUser) ([]model.AppResponse, error) {
-	app, err := s.repository.FindAppointmentByUserID(ctx, id.ID)
+	app, err := s.memory.FindAppByUserIDMemory(id.ID)
 	if err != nil {
-		return nil, err
+		app, err := s.repository.FindAppointmentByUserID(ctx, id.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		_ = s.memory.CreateAppMemoryByUserID(app)
+		appResponse := model.NewAppResponseSlice(app)
+		return appResponse, nil
 	}
 	appResponse := model.NewAppResponseSlice(app)
 	return appResponse, nil
 }
 
 func (s *Service) FindAppBySalonID(ctx context.Context, id model.FindAppBySalon) ([]model.AppResponse, error) {
-	app, err := s.repository.FindAppointmentBySalonID(ctx, id.ID)
+	app, err := s.memory.FindAppBySalonIDMemory(id.ID)
 	if err != nil {
-		return nil, err
-	}
+		app, err := s.repository.FindAppointmentBySalonID(ctx, id.ID)
+		if err != nil {
+			return nil, err
+		}
 
+		_ = s.memory.CreateAppMemoryBySalonID(app)
+		appResponse := model.NewAppResponseSlice(app)
+		return appResponse, nil
+	}
 	appResponse := model.NewAppResponseSlice(app)
 	return appResponse, nil
 }

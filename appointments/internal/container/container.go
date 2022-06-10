@@ -6,18 +6,21 @@ import (
 
 	"github.com/LeandroAlcantara-1997/appointment/internal/config"
 	mongoConfig "github.com/LeandroAlcantara-1997/appointment/pkg/core/mongo"
+	redisConfig "github.com/LeandroAlcantara-1997/appointment/pkg/core/redis"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
 	app "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/service"
 	"github.com/facily-tech/go-core/env"
 	"github.com/facily-tech/go-core/log"
 	"github.com/facily-tech/go-core/telemetry"
 	"github.com/facily-tech/go-core/types"
+	"github.com/go-redis/redis"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type envs struct {
 	Mongo mongoConfig.Config
+	Redis redisConfig.Config
 }
 
 // Components are a like service, but it doesn't include business case
@@ -26,6 +29,7 @@ type components struct {
 	Log         log.Logger
 	Tracer      telemetry.Tracer
 	MongoClient *mongo.Client
+	RedisClient *redis.Client
 	// Include your new components bellow
 }
 
@@ -58,6 +62,9 @@ func New(ctx context.Context) (context.Context, *Dependency, error) {
 			envs.Mongo.Database,
 			envs.Mongo.Collection,
 		),
+		repository.NewRedisRepository(
+			cmp.RedisClient,
+		),
 	)
 	if err != nil {
 		return nil, nil, err
@@ -81,8 +88,14 @@ func loadEnvs(ctx context.Context) (envs, error) {
 		return envs{}, err
 	}
 
+	redisDB := redisConfig.Config{}
+	if err := env.LoadEnv(ctx, &redisDB, redisConfig.ConfigPrefix); err != nil {
+		return envs{}, err
+	}
+
 	return envs{
 		Mongo: mongoDB,
+		Redis: redisDB,
 	}, nil
 }
 
@@ -117,10 +130,21 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 		return nil, err
 	}
 
-	client, err := mongo.Connect(context.Background(), options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:27017",
-		envs.Mongo.User,
-		envs.Mongo.Password,
-		envs.Mongo.Host)))
+	clientMongo, err := mongo.Connect(context.Background(),
+		options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s@%s:27017",
+			envs.Mongo.User,
+			envs.Mongo.Password,
+			envs.Mongo.Host)))
+
+	clientRedis := redis.NewClient(&redis.Options{
+		Addr:     fmt.Sprintf("%s:6379", envs.Redis.Host),
+		Password: envs.Redis.Password,
+	})
+
+	re := clientRedis.Ping()
+	if re.Err() != nil {
+		return nil, err
+	}
 
 	if err != nil {
 		return nil, err
@@ -128,7 +152,8 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 	return &components{
 		Log:         l,
 		Tracer:      tracer,
-		MongoClient: client,
+		MongoClient: clientMongo,
+		RedisClient: clientRedis,
 		// include components initialized bellow here
 	}, nil
 }

@@ -28,14 +28,20 @@ type Execer interface {
 	DeleteAppointment(context.Context, string) error
 }
 
-type AppointmentMemotyI interface {
+type AppointmentMemoryI interface {
 	QuerieMemory
 
 	ExecerMemory
 }
 
 type QuerieMemory interface {
+	FindAppByIDMemory(string) (*model.Appointment, error)
+	FindAppByUserIDMemory(int) ([]model.Appointment, error)
+	FindAppBySalonIDMemory(int) ([]model.Appointment, error)
 }
 
 type ExecerMemory interface {
+	CreateAppMemoryByID(model.Appointment) error
+	CreateAppMemoryByUserID([]model.Appointment) error
+	CreateAppMemoryBySalonID([]model.Appointment) error
 }
