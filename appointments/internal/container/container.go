@@ -141,11 +141,6 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 		Password: envs.Redis.Password,
 	})
 
-	re := clientRedis.Ping()
-	if re.Err() != nil {
-		return nil, err
-	}
-
 	if err != nil {
 		return nil, err
 	}

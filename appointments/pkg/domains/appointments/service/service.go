@@ -33,9 +33,6 @@ func NewService(l log.Logger, r repository.AppointmentRepositoryI, m repository.
 		return nil, appErr.ErrEmptyRepository
 	}
 
-	if m == nil {
-		return nil, appErr.ErrEmptyRepository
-	}
 	return &Service{
 		log:        l,
 		repository: r,
