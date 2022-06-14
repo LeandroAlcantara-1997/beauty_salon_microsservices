@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  app:
+  appointment:
     user: vscode
     container_name: appointment
     build:
@@ -27,8 +27,10 @@ services:
     # Runs app on the same network as the service container, allows "forwardPorts" in devcontainer.json function.
     depends_on:
       - mongo_db
+      - rabbit
     networks:
       - appoint-network
+      - queue-network
 
   mongo_db: 
     image: mongo:5.0
