@@ -7,6 +7,7 @@ import (
 	coreMiddleware "github.com/facily-tech/go-core/http/server/middleware"
 
 	"github.com/LeandroAlcantara-1997/appointment/internal/container"
+
 	appTransport "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/transport"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"

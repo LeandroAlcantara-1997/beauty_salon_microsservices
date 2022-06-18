@@ -10,6 +10,11 @@ lint:
 api:
 	@go run $(LD_FLAGS) cmd/api/main.go 
 
+
+.PHONY: broker
+broker:
+	@go run $(LD_FLAGS) cmd/broker/main.go   
+
 .PHONY: grpc
 grpc:
 	@go run $(LD_FLAGS) cmd/grpc/main.go 

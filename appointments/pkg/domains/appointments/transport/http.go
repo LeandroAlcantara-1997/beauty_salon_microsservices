@@ -24,13 +24,6 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 		http.ServerErrorEncoder(errorHandler),
 	}
 
-	createApp := http.NewServer(
-		appointments.CreateAppointment(svc),
-		decodeCreateApp,
-		codeHTTP{201}.encodeResponse,
-		options...,
-	)
-
 	updateApp := http.NewServer(
 		appointments.UpdateAppointmentByUser(svc),
 		decodeUpdateApp,
@@ -88,7 +81,6 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 
 	r := chi.NewRouter()
 
-	r.Post("/", createApp.ServeHTTP)
 	r.Get("/{id}", findAppByID.ServeHTTP)
 	r.Get("/", findAllApp.ServeHTTP)
 	r.Get("/user/{id}", findAppByUserID.ServeHTTP)
@@ -105,18 +97,6 @@ func decodeFindAppByID(_ context.Context, r *stdHTTP.Request) (interface{}, erro
 	var app model.FindAppointmentsByIDRequest
 	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
 		return nil, appErr.ErrInvalidPath
-	}
-	return app, nil
-}
-
-func decodeCreateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
-	var app model.UpsertAppointment
-	if err := json.NewDecoder(r.Body).Decode(&app); err != nil {
-		return nil, appErr.ErrInvalidBody
-	}
-
-	if err := validate.Struct(app); err != nil {
-		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
 	}
 	return app, nil
 }
