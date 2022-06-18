@@ -27,7 +27,7 @@ func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
 	)
 
 	createDelivery := createApp.ServeDelivery(ch)
-	me, err := ch.Consume("test", "", true, false, false, false, nil)
+	me, err := ch.Consume("create", "", false, false, false, false, nil)
 	if err != nil {
 		return nil
 	}
@@ -72,5 +72,9 @@ func errorSubscriber(_ context.Context, err error, deliv *delivery.Delivery, ch 
 	p.Body, err = json.Marshal(map[string]string{"error": resp})
 	if err != nil {
 		log.Printf("Encoding error, nothing much we can do: %v", err)
+	}
+
+	if err := deliv.Ack(true); err != nil {
+		log.Printf("Cannot be return a response %v", err)
 	}
 }
