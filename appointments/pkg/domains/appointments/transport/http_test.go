@@ -303,63 +303,6 @@ func Test_decodeAppBySalon(t *testing.T) {
 	}
 }
 
-func Test_decodeMakeAppointment(t *testing.T) {
-	type args struct {
-		ctx context.Context
-		r   *stdHTTP.Request
-	}
-	tests := []struct {
-		name string
-		args args
-		want interface{}
-		init func(r *stdHTTP.Request) *stdHTTP.Request
-		err  error
-	}{
-		{
-			name: "success, decodified new make appointment",
-			args: args{
-				ctx: context.Background(),
-				r: httptest.NewRequest(
-					"PUT",
-					"/1",
-					strings.NewReader(`{}`),
-				),
-			},
-			init: func(r *stdHTTP.Request) *stdHTTP.Request {
-				chiCtx := chi.NewRouteContext()
-				chiCtx.URLParams.Add("id", "1")
-				return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chiCtx))
-			},
-			want: model.MakeAppointment{ID: 1},
-		},
-		{
-			name: "fail, cannot decodified new make appointment",
-			args: args{
-				ctx: context.Background(),
-				r: httptest.NewRequest(
-					"PUT",
-					"/",
-					strings.NewReader(`{}`),
-				),
-			},
-			init: func(r *stdHTTP.Request) *stdHTTP.Request {
-				chiCtx := chi.NewRouteContext()
-				chiCtx.URLParams.Add("id", "")
-				return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chiCtx))
-			},
-			err: apErr.ErrInvalidPath,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			r := tt.init(tt.args.r)
-			got, err := decodeMakeAppointment(tt.args.ctx, r)
-			assert.ErrorIs(t, err, tt.err)
-			assert.Equal(t, tt.want, got)
-		})
-	}
-}
-
 func Test_decodeDeleteApp(t *testing.T) {
 	type args struct {
 		ctx context.Context

@@ -356,23 +356,23 @@ func TestMakeAppointmentByUser(t *testing.T) {
 			name: "success",
 			args: args{
 				svc:     service.NewMockAppointmentService(ctrl),
-				request: model.MakeAppointment{ID: fakeUpsert.UserID},
+				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeAppResponse.UserID},
 				ctx:     context.Background(),
 			},
 			init: func(s *service.MockAppointmentService, ctx context.Context) {
-				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.UserID}).Return([]model.AppResponse{fakeAppResponse}, nil)
+				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(&fakeAppResponse, nil)
 			},
-			response: []model.AppResponse{fakeAppResponse},
+			response: &fakeAppResponse,
 		},
 		{
 			name: "fail, return error",
 			args: args{
 				svc:     service.NewMockAppointmentService(ctrl),
-				request: model.MakeAppointment{ID: fakeUpsert.UserID},
+				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeUpsert.UserID},
 				ctx:     context.Background(),
 			},
 			init: func(s *service.MockAppointmentService, ctx context.Context) {
-				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.UserID}).Return(nil, appErr.ErrDatabase)
+				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(nil, appErr.ErrDatabase)
 			},
 			err: appErr.ErrDatabase,
 		},

@@ -139,3 +139,49 @@ func Test_errorSubscriber(t *testing.T) {
 		})
 	}
 }
+
+func Test_decodeMakeAppointment(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		r   *delivery.Delivery
+	}
+	tests := []struct {
+		name string
+		args args
+		want interface{}
+		err  error
+	}{
+		{
+			name: "success, make appointment sucefull",
+			args: args{
+				ctx: context.Background(),
+				r: &delivery.Delivery{
+					Body: []byte(`{
+						"id": "628ed8e442c5ab8d69b6d4fa",
+						"user_id": 1
+					}`),
+				},
+			},
+			want: model.MakeAppointment{ID: "628ed8e442c5ab8d69b6d4fa", UserID: 1},
+		},
+		{
+			name: "fail, cannot make appointment",
+			args: args{
+				ctx: context.Background(),
+				r: &delivery.Delivery{
+					Body: []byte(`{
+						"user_id": 1
+					}`),
+				},
+			},
+			err: appErr.ErrInvalidBody,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := decodeMakeAppointment(tt.args.ctx, tt.args.r)
+			assert.ErrorIs(t, err, tt.err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}

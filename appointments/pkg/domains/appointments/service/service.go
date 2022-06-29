@@ -13,7 +13,7 @@ import (
 type AppointmentService interface {
 	CreateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	UpdateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
-	MakeAppointment(context.Context, model.MakeAppointment) ([]model.AppResponse, error)
+	MakeAppointment(context.Context, model.MakeAppointment) (*model.AppResponse, error)
 	FindAllAppointments(context.Context) ([]model.AppResponse, error)
 	FindAvailableAppointments(context.Context) ([]model.AppResponse, error)
 	FindAppByID(context.Context, model.FindAppointmentsByIDRequest) (*model.AppResponse, error)
@@ -133,13 +133,13 @@ func (s *Service) FindAppBySalonID(ctx context.Context, id model.FindAppBySalon)
 	return appResponse, nil
 }
 
-func (s *Service) MakeAppointment(ctx context.Context, make model.MakeAppointment) ([]model.AppResponse, error) {
-	app, err := s.repository.MakeAppointment(ctx, make.ID)
+func (s *Service) MakeAppointment(ctx context.Context, make model.MakeAppointment) (*model.AppResponse, error) {
+	app, err := s.repository.MakeAppointment(ctx, make.ID, make.UserID)
 	if err != nil {
 		return nil, err
 	}
-	appResponse := model.NewAppResponseSlice(app)
-	return appResponse, nil
+	appResponse := model.NewAppResponse(*app)
+	return &appResponse, nil
 }
 
 func (s *Service) DeleteApp(ctx context.Context, app model.DeleteAppointment) error {

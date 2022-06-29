@@ -548,31 +548,31 @@ func TestService_MakeAppointment(t *testing.T) {
 		name string
 		args args
 		init func() *repository.MockAppointmentRepositoryI
-		want []model.AppResponse
+		want *model.AppResponse
 		err  error
 	}{
 		{
 			name: "success, Appointment marked",
 			args: args{
 				ctx:  context.Background(),
-				make: model.MakeAppointment{ID: fakeApp.UserID},
+				make: model.MakeAppointment{ID: fakeApp.ID, UserID: fakeApp.UserID},
 			},
 			init: func() *repository.MockAppointmentRepositoryI {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
-				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.UserID).Return([]model.Appointment{fakeApp}, nil)
+				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(&fakeApp, nil)
 				return repo
 			},
-			want: []model.AppResponse{fakeAppResponse},
+			want: &fakeAppResponse,
 		},
 		{
 			name: "fail, don't was possible found Appointment",
 			args: args{
 				ctx:  context.Background(),
-				make: model.MakeAppointment{ID: fakeApp.UserID},
+				make: model.MakeAppointment{ID: fakeApp.ID, UserID: fakeApp.UserID},
 			},
 			init: func() *repository.MockAppointmentRepositoryI {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
-				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.UserID).Return(nil, appErr.ErrNotFound)
+				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(nil, appErr.ErrNotFound)
 				return repo
 			},
 			err: appErr.ErrNotFound,

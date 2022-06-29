@@ -59,13 +59,6 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 		options...,
 	)
 
-	makeApp := http.NewServer(
-		appointments.MakeAppointmentByUser(svc),
-		decodeMakeAppointment,
-		codeHTTP{200}.encodeResponse,
-		options...,
-	)
-
 	availableApp := http.NewServer(
 		appointments.AvailableAppointment(svc),
 		decodeAvailableApp,
@@ -87,7 +80,6 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 	r.Get("/salon/{id}", findAppBySalonID.ServeHTTP)
 	r.Get("/available", availableApp.ServeHTTP)
 	r.Put("/{id}", updateApp.ServeHTTP)
-	r.Put("/make/{id}", makeApp.ServeHTTP)
 	r.Delete("/{id}", deleteApp.ServeHTTP)
 
 	return r
@@ -137,18 +129,6 @@ func decodeAppByUser(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var (
 		app model.FindAppBySalon
-		err error
-	)
-	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
-		return nil, appErr.ErrInvalidPath
-	}
-
-	return app, nil
-}
-
-func decodeMakeAppointment(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
-	var (
-		app model.MakeAppointment
 		err error
 	)
 	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {

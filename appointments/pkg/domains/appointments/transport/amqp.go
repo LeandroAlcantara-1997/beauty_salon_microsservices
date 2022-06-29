@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"sync"
 
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments"
 	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
@@ -15,6 +16,8 @@ import (
 )
 
 func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
+	wg := new(sync.WaitGroup)
+	wg.Add(2)
 	options := []amqp.SubscriberOption{
 		amqp.SubscriberErrorEncoder(errorSubscriber),
 	}
@@ -24,27 +27,46 @@ func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
 		decodeCreateApp,
 		encodeResponseFunc,
 		options...,
-	)
+	).ServeDelivery(ch)
 
-	createDelivery := createApp.ServeDelivery(ch)
-	me, err := ch.Consume("create", "", false, false, false, false, nil)
+	createMessage, err := ch.Consume("create", "", false, false, false, false, nil)
 	if err != nil {
-		return nil
+		return err
 	}
 
-	channel(createDelivery, me)
+	makeApp := amqp.NewSubscriber(
+		appointments.MakeAppointmentByUser(svc),
+		decodeMakeAppointment,
+		encodeResponseFunc,
+		options...,
+	).ServeDelivery(ch)
+
+	makeMessage, err := ch.Consume("make", "", false, false, false, false, nil)
+	if err != nil {
+		return err
+	}
+
+	go Createchannel(createApp, createMessage, *wg)
+	go Makechannel(makeApp, makeMessage, *wg)
+	wg.Wait()
 	return nil
 }
 
-func channel(del func(del *delivery.Delivery), message <-chan delivery.Delivery) {
-	forever := make(chan bool)
-	go func() {
-		for me := range message {
-			// For example, show received message in a console.
-			del(&me)
-		}
-	}()
-	<-forever
+func Createchannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg sync.WaitGroup) {
+	defer wg.Done()
+	for d := range message {
+		del(&d)
+		log.Printf("Received a message: %s", d.Body)
+	}
+	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
+}
+
+func Makechannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg sync.WaitGroup) {
+	defer wg.Done()
+	for d := range message {
+		del(&d)
+		log.Printf("Received a message: %s", d.Body)
+	}
 }
 
 func decodeCreateApp(_ context.Context, r *delivery.Delivery) (interface{}, error) {
@@ -55,6 +77,19 @@ func decodeCreateApp(_ context.Context, r *delivery.Delivery) (interface{}, erro
 	if err := validate.Struct(app); err != nil {
 		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
 	}
+	return app, nil
+}
+
+func decodeMakeAppointment(_ context.Context, r *delivery.Delivery) (interface{}, error) {
+	var app model.MakeAppointment
+
+	if err := json.Unmarshal(r.Body, &app); err != nil {
+		return nil, appErr.ErrInvalidBody
+	}
+	if err := validate.Struct(app); err != nil {
+		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
+	}
+
 	return app, nil
 }
 
