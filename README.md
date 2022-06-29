@@ -13,3 +13,5 @@ Beauty salon microsservices is a project for make user's appointmens in a beauty
 ~~~make
 make run
 ~~~
+
+## **Look ats project progress on [kanban board](https://github.com/LeandroAlcantara-1997/beauty_salon_microsservices/projects?type=classic)**

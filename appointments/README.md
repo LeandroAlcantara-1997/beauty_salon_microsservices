@@ -2,7 +2,7 @@
 
 Appointments is a service for keep salon and user appointments.
 
-## How to run project?
+## **How to run project?**
 
 1. Create a file .env and setup env variables with name .env in folder build 
 2. Create a file application.env and setup env variables with name application.env in folder env
@@ -10,3 +10,5 @@ Appointments is a service for keep salon and user appointments.
 ~~~make
 make docker
 ~~~
+
+## **Look at project progress on [kanban board](https://github.com/LeandroAlcantara-1997/beauty_salon_microsservices/projects/1)**
