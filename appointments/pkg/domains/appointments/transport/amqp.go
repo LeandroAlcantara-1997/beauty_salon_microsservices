@@ -15,9 +15,11 @@ import (
 	delivery "github.com/streadway/amqp"
 )
 
+const queue = 2
+
 func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
 	wg := new(sync.WaitGroup)
-	wg.Add(2)
+	wg.Add(queue)
 	options := []amqp.SubscriberOption{
 		amqp.SubscriberErrorEncoder(errorSubscriber),
 	}
@@ -46,13 +48,13 @@ func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
 		return err
 	}
 
-	go Createchannel(createApp, createMessage, *wg)
-	go Makechannel(makeApp, makeMessage, *wg)
+	go createchannel(createApp, createMessage, wg)
+	go makechannel(makeApp, makeMessage, wg)
 	wg.Wait()
 	return nil
 }
 
-func Createchannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg sync.WaitGroup) {
+func createchannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for d := range message {
 		del(&d)
@@ -61,7 +63,7 @@ func Createchannel(del func(del *delivery.Delivery), message <-chan delivery.Del
 	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
 }
 
-func Makechannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg sync.WaitGroup) {
+func makechannel(del func(del *delivery.Delivery), message <-chan delivery.Delivery, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for d := range message {
 		del(&d)
