@@ -30,25 +30,25 @@ func TestCreateAppointment(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: fakeUpsert,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().CreateAppointment(context.Background(), fakeUpsert).Return(&fakeAppResponse, nil)
 			},
 			response: &fakeAppResponse,
@@ -56,11 +56,11 @@ func TestCreateAppointment(t *testing.T) {
 		{
 			name: "fail, returns error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: fakeUpsert,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().CreateAppointment(context.Background(), fakeUpsert).Return(nil, appErr.ErrNew)
 			},
 			response: nil,
@@ -81,27 +81,27 @@ func TestFindAppointmentByID(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc: service.NewMockAppointmentService(ctrl),
+				svc: service.NewMockAppointmentServiceI(ctrl),
 				request: model.FindAppointmentsByIDRequest{
 					ID: fakeAppResponse.ID,
 				},
 				ctx: context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppByID(context.Background(), model.FindAppointmentsByIDRequest{
 					ID: fakeAppResponse.ID,
 				}).Return(&fakeAppResponse, nil)
@@ -112,11 +112,11 @@ func TestFindAppointmentByID(t *testing.T) {
 		{
 			name: "fail, returns error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: fakeUpsert,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppByID(context.Background(), model.FindAppointmentsByIDRequest{
 					ID: fakeAppResponse.ID,
 				}).Return(nil, appErr.ErrTypeAssertion)
@@ -139,25 +139,25 @@ func TestFindAllAppointment(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: nil,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAllAppointments(context.Background()).Return([]model.AppResponse{fakeAppResponse}, nil)
 			},
 			response: []model.AppResponse{fakeAppResponse},
@@ -166,11 +166,11 @@ func TestFindAllAppointment(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: nil,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAllAppointments(context.Background()).Return(nil, appErr.ErrDatabase)
 			},
 			response: nil,
@@ -191,25 +191,25 @@ func TestFindAppointmentByUser(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.FindAppByUser{ID: 1},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppByUserID(ctx, model.FindAppByUser{ID: 1}).Return([]model.AppResponse{fakeAppResponse}, nil)
 			},
 			response: []model.AppResponse{fakeAppResponse},
@@ -217,11 +217,11 @@ func TestFindAppointmentByUser(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.FindAppByUser{ID: 1},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppByUserID(ctx, model.FindAppByUser{ID: 1}).Return(nil, appErr.ErrDatabase)
 			},
 			err: appErr.ErrDatabase,
@@ -241,25 +241,25 @@ func TestFindAppointmentBySalon(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.FindAppBySalon{ID: fakeAppResponse.SalonID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppBySalonID(ctx, model.FindAppBySalon{ID: fakeAppResponse.SalonID}).Return([]model.AppResponse{fakeAppResponse}, nil)
 			},
 			response: []model.AppResponse{fakeAppResponse},
@@ -267,11 +267,11 @@ func TestFindAppointmentBySalon(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.FindAppBySalon{ID: fakeAppResponse.SalonID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAppBySalonID(ctx, model.FindAppBySalon{ID: fakeAppResponse.SalonID}).Return(nil, appErr.ErrTypeAssertion)
 			},
 			err: appErr.ErrTypeAssertion,
@@ -291,25 +291,25 @@ func TestUpdateAppointmentByUser(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: fakeUpsert,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().UpdateAppointment(ctx, fakeUpsert).Return(&fakeAppResponse, nil)
 			},
 			response: &fakeAppResponse,
@@ -317,11 +317,11 @@ func TestUpdateAppointmentByUser(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: fakeUpsert,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().UpdateAppointment(ctx, fakeUpsert).Return(nil, appErr.ErrTypeAssertion)
 			},
 			err: appErr.ErrTypeAssertion,
@@ -341,25 +341,25 @@ func TestMakeAppointmentByUser(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeAppResponse.UserID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(&fakeAppResponse, nil)
 			},
 			response: &fakeAppResponse,
@@ -367,11 +367,11 @@ func TestMakeAppointmentByUser(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeUpsert.UserID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().MakeAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(nil, appErr.ErrDatabase)
 			},
 			err: appErr.ErrDatabase,
@@ -391,25 +391,25 @@ func TestDeleteAppointment(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.DeleteAppointment{ID: fakeUpsert.ID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().DeleteApp(ctx, model.DeleteAppointment{ID: fakeAppResponse.ID}).Return(nil)
 			},
 			response: nil,
@@ -417,11 +417,11 @@ func TestDeleteAppointment(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: model.DeleteAppointment{ID: fakeUpsert.ID},
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().DeleteApp(ctx, model.DeleteAppointment{ID: fakeAppResponse.ID}).Return(appErr.ErrDatabase)
 			},
 			err: appErr.ErrDatabase,
@@ -441,25 +441,25 @@ func TestAvailableAppointment(t *testing.T) {
 	var ctrl = gomock.NewController(t)
 	ctrl.Finish()
 	type args struct {
-		svc     *service.MockAppointmentService
+		svc     *service.MockAppointmentServiceI
 		request interface{}
 		ctx     context.Context
 	}
 	tests := []struct {
 		name     string
 		args     args
-		init     func(s *service.MockAppointmentService, ctx context.Context)
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
 		response interface{}
 		err      error
 	}{
 		{
 			name: "success",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: nil,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAvailableAppointments(ctx).Return([]model.AppResponse{fakeAppResponse}, nil)
 			},
 			response: []model.AppResponse{fakeAppResponse},
@@ -467,11 +467,11 @@ func TestAvailableAppointment(t *testing.T) {
 		{
 			name: "fail, return error",
 			args: args{
-				svc:     service.NewMockAppointmentService(ctrl),
+				svc:     service.NewMockAppointmentServiceI(ctrl),
 				request: nil,
 				ctx:     context.Background(),
 			},
-			init: func(s *service.MockAppointmentService, ctx context.Context) {
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
 				s.EXPECT().FindAvailableAppointments(ctx).Return(nil, appErr.ErrDatabase)
 			},
 			err: appErr.ErrDatabase,

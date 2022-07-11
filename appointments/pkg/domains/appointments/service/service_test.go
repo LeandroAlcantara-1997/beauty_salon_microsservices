@@ -124,7 +124,7 @@ func TestService_CreateAppointment(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.CreateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -192,7 +192,7 @@ func TestService_UpdateAppointment(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.UpdateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -246,7 +246,7 @@ func TestService_FindAllAppointments(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.FindAllAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -300,7 +300,7 @@ func TestService_FindAvailableAppointments(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.FindAvailableAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -377,7 +377,7 @@ func TestService_FindAppByID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.FindAppByID(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -453,7 +453,7 @@ func TestService_FindAppByUserID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.FindAppByUserID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -528,7 +528,7 @@ func TestService_FindAppBySalonID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.FindAppBySalonID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -584,7 +584,7 @@ func TestService_MakeAppointment(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLog(ctrl),
+				log:        log.NewMockAppointmentLogI(ctrl),
 			}
 			got, err := s.MakeAppointment(tt.args.ctx, tt.args.make)
 			assert.ErrorIs(t, err, tt.err)
