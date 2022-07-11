@@ -6,6 +6,7 @@ require github.com/facily-tech/go-core/log v0.2.1
 
 require (
 	github.com/DataDog/gostackparse v0.5.0 // indirect
+	github.com/ZachtimusPrime/Go-Splunk-HTTP/splunk/v2 v2.0.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

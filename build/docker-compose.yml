@@ -16,6 +16,18 @@ services:
     restart: always
     networks:
       - app-network
+  
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_START_ARGS=--accept-license"
+    ports:
+      - "8000:8000"
+      - "8088:8088"
+    networks:
+      - app-network
 
 networks:
   app-network:

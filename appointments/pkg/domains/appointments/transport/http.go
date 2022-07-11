@@ -19,7 +19,7 @@ import (
 
 var validate = validator.New()
 
-func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
+func NewHTTPHandler(svc service.AppointmentServiceI) stdHTTP.Handler {
 	options := []http.ServerOption{
 		http.ServerErrorEncoder(errorHandler),
 	}

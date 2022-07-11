@@ -17,7 +17,7 @@ import (
 
 const queue = 2
 
-func NewBroke(svc service.AppointmentService, ch amqp.Channel) error {
+func NewBroke(svc service.AppointmentServiceI, ch amqp.Channel) error {
 	wg := new(sync.WaitGroup)
 	wg.Add(queue)
 	options := []amqp.SubscriberOption{

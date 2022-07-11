@@ -10,7 +10,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateAppointment(svc service.AppointmentService) endpoint.Endpoint {
+func CreateAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.UpsertAppointment)
 		if !ok {
@@ -26,7 +26,7 @@ func CreateAppointment(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func FindAppointmentByID(svc service.AppointmentService) endpoint.Endpoint {
+func FindAppointmentByID(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.FindAppointmentsByIDRequest)
 		if !ok {
@@ -42,7 +42,7 @@ func FindAppointmentByID(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func FindAllAppointment(svc service.AppointmentService) endpoint.Endpoint {
+func FindAllAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		appResponse, err := svc.FindAllAppointments(ctx)
 		if err != nil {
@@ -53,7 +53,7 @@ func FindAllAppointment(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func FindAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
+func FindAppointmentByUser(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.FindAppByUser)
 		if !ok {
@@ -69,7 +69,7 @@ func FindAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func FindAppointmentBySalon(svc service.AppointmentService) endpoint.Endpoint {
+func FindAppointmentBySalon(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.FindAppBySalon)
 		if !ok {
@@ -85,7 +85,7 @@ func FindAppointmentBySalon(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func UpdateAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
+func UpdateAppointmentByUser(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.UpsertAppointment)
 		if !ok {
@@ -101,7 +101,7 @@ func UpdateAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func MakeAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
+func MakeAppointmentByUser(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.MakeAppointment)
 		if !ok {
@@ -117,7 +117,7 @@ func MakeAppointmentByUser(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func DeleteAppointment(svc service.AppointmentService) endpoint.Endpoint {
+func DeleteAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		req, ok := request.(model.DeleteAppointment)
 		if !ok {
@@ -133,7 +133,7 @@ func DeleteAppointment(svc service.AppointmentService) endpoint.Endpoint {
 	}
 }
 
-func AvailableAppointment(svc service.AppointmentService) endpoint.Endpoint {
+func AvailableAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
 		app, err := svc.FindAvailableAppointments(ctx)
 		if err != nil {

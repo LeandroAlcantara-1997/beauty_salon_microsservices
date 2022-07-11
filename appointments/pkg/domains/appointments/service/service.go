@@ -4,13 +4,13 @@ import (
 	"context"
 
 	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
+	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/log"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/model"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
-	"github.com/facily-tech/go-core/log"
 )
 
 //go:generate mockgen -destination service_mock.go -package=service -source=service.go
-type AppointmentService interface {
+type AppointmentServiceI interface {
 	CreateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	UpdateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	MakeAppointment(context.Context, model.MakeAppointment) (*model.AppResponse, error)
@@ -25,10 +25,11 @@ type AppointmentService interface {
 type Service struct {
 	repository repository.AppointmentRepositoryI
 	memory     repository.AppointmentMemoryI
-	log        log.Logger
+	log        log.AppointmentLogI
 }
 
-func NewService(l log.Logger, r repository.AppointmentRepositoryI, m repository.AppointmentMemoryI) (*Service, error) {
+func NewService(l log.AppointmentLogI, r repository.AppointmentRepositoryI,
+	m repository.AppointmentMemoryI) (*Service, error) {
 	if r == nil {
 		return nil, appErr.ErrEmptyRepository
 	}
@@ -45,6 +46,7 @@ func (s *Service) CreateAppointment(ctx context.Context, app model.UpsertAppoint
 		appPersistence *model.Appointment
 		err            error
 	)
+
 	if appPersistence, err = s.repository.CreateAppointment(ctx, model.NewAppointment(app)); err != nil {
 		return nil, err
 	}

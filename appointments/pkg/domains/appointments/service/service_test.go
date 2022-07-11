@@ -6,9 +6,9 @@ import (
 	"time"
 
 	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
+	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/log"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/model"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
-	"github.com/facily-tech/go-core/log"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,13 +35,13 @@ var fakeApp = model.Appointment{
 }
 
 func TestNewService(t *testing.T) {
-	var l log.Logger
+	var l log.AppointmentLogI
 	var ctrl *gomock.Controller
 	repo := repository.NewMockAppointmentRepositoryI(ctrl)
 
 	srv := Service{repository: repo, log: l}
 	type args struct {
-		l          log.Logger
+		l          log.AppointmentLogI
 		repository repository.AppointmentRepositoryI
 		memory     repository.AppointmentMemoryI
 	}
@@ -124,7 +124,7 @@ func TestService_CreateAppointment(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.CreateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -192,7 +192,7 @@ func TestService_UpdateAppointment(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.UpdateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -246,7 +246,7 @@ func TestService_FindAllAppointments(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.FindAllAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -300,7 +300,7 @@ func TestService_FindAvailableAppointments(t *testing.T) {
 			s := &Service{
 				repository: tt.init(),
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.FindAvailableAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -377,7 +377,7 @@ func TestService_FindAppByID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.FindAppByID(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -453,7 +453,7 @@ func TestService_FindAppByUserID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.FindAppByUserID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -528,7 +528,7 @@ func TestService_FindAppBySalonID(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.FindAppBySalonID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -584,7 +584,7 @@ func TestService_MakeAppointment(t *testing.T) {
 			s := &Service{
 				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        log.NewMockLog(ctrl),
 			}
 			got, err := s.MakeAppointment(tt.args.ctx, tt.args.make)
 			assert.ErrorIs(t, err, tt.err)
