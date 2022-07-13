@@ -19,17 +19,10 @@ import (
 
 var validate = validator.New()
 
-func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
+func NewHTTPHandler(svc service.AppointmentServiceI) stdHTTP.Handler {
 	options := []http.ServerOption{
 		http.ServerErrorEncoder(errorHandler),
 	}
-
-	createApp := http.NewServer(
-		appointments.CreateAppointment(svc),
-		decodeCreateApp,
-		codeHTTP{201}.encodeResponse,
-		options...,
-	)
 
 	updateApp := http.NewServer(
 		appointments.UpdateAppointmentByUser(svc),
@@ -66,13 +59,6 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 		options...,
 	)
 
-	makeApp := http.NewServer(
-		appointments.MakeAppointmentByUser(svc),
-		decodeMakeAppointment,
-		codeHTTP{200}.encodeResponse,
-		options...,
-	)
-
 	availableApp := http.NewServer(
 		appointments.AvailableAppointment(svc),
 		decodeAvailableApp,
@@ -88,14 +74,12 @@ func NewHTTPHandler(svc service.AppointmentService) stdHTTP.Handler {
 
 	r := chi.NewRouter()
 
-	r.Post("/", createApp.ServeHTTP)
 	r.Get("/{id}", findAppByID.ServeHTTP)
 	r.Get("/", findAllApp.ServeHTTP)
 	r.Get("/user/{id}", findAppByUserID.ServeHTTP)
 	r.Get("/salon/{id}", findAppBySalonID.ServeHTTP)
 	r.Get("/available", availableApp.ServeHTTP)
 	r.Put("/{id}", updateApp.ServeHTTP)
-	r.Put("/make/{id}", makeApp.ServeHTTP)
 	r.Delete("/{id}", deleteApp.ServeHTTP)
 
 	return r
@@ -105,18 +89,6 @@ func decodeFindAppByID(_ context.Context, r *stdHTTP.Request) (interface{}, erro
 	var app model.FindAppointmentsByIDRequest
 	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
 		return nil, appErr.ErrInvalidPath
-	}
-	return app, nil
-}
-
-func decodeCreateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
-	var app model.UpsertAppointment
-	if err := json.NewDecoder(r.Body).Decode(&app); err != nil {
-		return nil, appErr.ErrInvalidBody
-	}
-
-	if err := validate.Struct(app); err != nil {
-		return nil, errors.Wrap(appErr.ErrInvalidBody, err.Error())
 	}
 	return app, nil
 }
@@ -157,18 +129,6 @@ func decodeAppByUser(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var (
 		app model.FindAppBySalon
-		err error
-	)
-	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {
-		return nil, appErr.ErrInvalidPath
-	}
-
-	return app, nil
-}
-
-func decodeMakeAppointment(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
-	var (
-		app model.MakeAppointment
 		err error
 	)
 	if app.ID, err = strconv.Atoi(chi.URLParam(r, "id")); err != nil {

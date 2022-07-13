@@ -18,7 +18,7 @@ type Querier interface {
 	FindAppointmentByID(context.Context, string) (*model.Appointment, error)
 	FindAppointmentByUserID(context.Context, int) ([]model.Appointment, error)
 	FindAppointmentBySalonID(context.Context, int) ([]model.Appointment, error)
-	MakeAppointment(context.Context, int) ([]model.Appointment, error)
+	MakeAppointment(context.Context, string, int) (*model.Appointment, error)
 	AvaiableAppointment(context.Context) ([]model.Appointment, error)
 }
 

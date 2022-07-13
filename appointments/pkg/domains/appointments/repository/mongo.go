@@ -34,24 +34,29 @@ func (m *MongoRepository) CreateAppointment(ctx context.Context, app model.Appoi
 		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
-	app.ID = fmt.Sprintf("%v", result.InsertedID)
+	id, err := primitive.ObjectIDFromHex(fmt.Sprintf("%v", result.InsertedID))
+	if err != nil {
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+	app.ID = id.Hex()
 	return &app, nil
 }
 
 func (m *MongoRepository) UpdateAppointment(ctx context.Context, app model.Appointment) (*model.Appointment, error) {
-	var updateApp model.Appointment
+	coll := m.client.Database(m.database).Collection(m.collection)
 	id, err := primitive.ObjectIDFromHex(app.ID)
 	if err != nil {
 		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
 	app.ID = ""
-	coll := m.client.Database(m.database).Collection(m.collection)
-	if err := coll.FindOneAndUpdate(ctx, bson.M{"_id": id}, bson.M{"$set": &app}).Decode(&updateApp); err != nil {
+	if _, err := coll.UpdateByID(ctx, id, bson.M{"$set": &app}); err != nil {
 		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
-	return &updateApp, nil
+	app.ID = id.Hex()
+
+	return &app, nil
 }
 
 func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) error {
@@ -100,18 +105,26 @@ func (m *MongoRepository) FindAppointmentByID(ctx context.Context, id string) (*
 	return &app, nil
 }
 
-func (m *MongoRepository) MakeAppointment(ctx context.Context, id int) ([]model.Appointment, error) {
-	var app []model.Appointment
+func (m *MongoRepository) MakeAppointment(ctx context.Context, id string, user int) (*model.Appointment, error) {
+	var app model.Appointment
 	coll := m.client.Database(m.database).Collection(m.collection)
-	cursor, err := coll.Find(ctx, bson.M{"user_id": nil})
+	_id, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
 
-	if err := cursor.Decode(&app); err != nil {
+	if err := coll.FindOne(ctx, bson.M{"_id": _id}).Decode(&app); err != nil {
 		return nil, err
 	}
-	return app, nil
+	app.ID = ""
+	app.UserID = user
+	if _, err := coll.UpdateByID(ctx, _id, bson.M{"$set": &app}); err != nil {
+		return nil, errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+
+	app.ID = _id.Hex()
+
+	return &app, nil
 }
 
 func (m *MongoRepository) FindAppointmentByUserID(ctx context.Context, id int) ([]model.Appointment, error) {

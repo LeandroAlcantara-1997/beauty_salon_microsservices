@@ -6,9 +6,9 @@ import (
 	"time"
 
 	appErr "github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/error"
+	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/log"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/model"
 	"github.com/LeandroAlcantara-1997/appointment/pkg/domains/appointments/repository"
-	"github.com/facily-tech/go-core/log"
 	gomock "github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,13 +35,13 @@ var fakeApp = model.Appointment{
 }
 
 func TestNewService(t *testing.T) {
-	var l log.Logger
+	var l log.AppointmentLogI
 	var ctrl *gomock.Controller
 	repo := repository.NewMockAppointmentRepositoryI(ctrl)
 
 	srv := Service{repository: repo, log: l}
 	type args struct {
-		l          log.Logger
+		l          log.AppointmentLogI
 		repository repository.AppointmentRepositoryI
 		memory     repository.AppointmentMemoryI
 	}
@@ -86,7 +86,7 @@ func TestService_CreateAppointment(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		init func() *repository.MockAppointmentRepositoryI
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
 		args args
 		want *model.AppResponse
 		err  error
@@ -97,10 +97,11 @@ func TestService_CreateAppointment(t *testing.T) {
 				ctx: context.Background(),
 				app: fakeUpsert,
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().CreateAppointment(context.Background(), fakeApp).Return(&fakeApp, nil)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, l
 			},
 			want: &fakeAppResponse,
 		},
@@ -110,10 +111,12 @@ func TestService_CreateAppointment(t *testing.T) {
 				ctx: context.Background(),
 				app: fakeUpsert,
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().CreateAppointment(context.Background(), fakeApp).Return(nil, appErr.ErrDatabase)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrDatabase).Return(nil)
+				return repo, l
 			},
 			want: nil,
 			err:  appErr.ErrDatabase,
@@ -121,10 +124,11 @@ func TestService_CreateAppointment(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
 			s := &Service{
-				repository: tt.init(),
+				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.CreateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -143,7 +147,7 @@ func TestService_UpdateAppointment(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() *repository.MockAppointmentRepositoryI
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
 		want *model.AppResponse
 		err  error
 	}{
@@ -153,10 +157,11 @@ func TestService_UpdateAppointment(t *testing.T) {
 				ctx: context.Background(),
 				app: fakeUpsert,
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().UpdateAppointment(context.Background(), fakeApp).Return(&fakeApp, nil)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, l
 			},
 			want: &fakeAppResponse,
 		},
@@ -166,10 +171,12 @@ func TestService_UpdateAppointment(t *testing.T) {
 				ctx: context.Background(),
 				app: fakeUpsert,
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().UpdateAppointment(context.Background(), fakeApp).Return(nil, appErr.ErrDatabase)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrDatabase).Return(nil)
+				return repo, l
 			},
 			err: appErr.ErrDatabase,
 		},
@@ -179,20 +186,23 @@ func TestService_UpdateAppointment(t *testing.T) {
 				ctx: context.Background(),
 				app: fakeUpsert,
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().UpdateAppointment(context.Background(), fakeApp).Return(nil, appErr.ErrNotFound)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
 			s := &Service{
-				repository: tt.init(),
+				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.UpdateAppointment(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -209,7 +219,7 @@ func TestService_FindAllAppointments(t *testing.T) {
 	}
 	tests := []struct {
 		name string
-		init func() *repository.MockAppointmentRepositoryI
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
 		args args
 		want []model.AppResponse
 		err  error
@@ -219,12 +229,13 @@ func TestService_FindAllAppointments(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAllAppointments(context.Background()).Return([]model.Appointment{
 					fakeApp,
 				}, nil)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -233,20 +244,23 @@ func TestService_FindAllAppointments(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAllAppointments(context.Background()).Return(nil, appErr.ErrNotFound)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
 			s := &Service{
-				repository: tt.init(),
+				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.FindAllAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -264,7 +278,7 @@ func TestService_FindAvailableAppointments(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() *repository.MockAppointmentRepositoryI
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
 		want []model.AppResponse
 		err  error
 	}{
@@ -273,12 +287,13 @@ func TestService_FindAvailableAppointments(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().AvaiableAppointment(context.Background()).Return([]model.Appointment{
 					fakeApp,
 				}, nil)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -287,20 +302,23 @@ func TestService_FindAvailableAppointments(t *testing.T) {
 			args: args{
 				ctx: context.Background(),
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().AvaiableAppointment(context.Background()).Return(nil, appErr.ErrNotFound)
-				return repo
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
 			s := &Service{
-				repository: tt.init(),
+				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.FindAvailableAppointments(tt.args.ctx)
 			assert.ErrorIs(t, err, tt.err)
@@ -319,7 +337,7 @@ func TestService_FindAppByID(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI)
+		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI)
 		want *model.AppResponse
 		err  error
 	}{
@@ -329,12 +347,13 @@ func TestService_FindAppByID(t *testing.T) {
 				ctx: context.Background(),
 				app: model.FindAppointmentsByIDRequest{ID: fakeApp.ID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByID(context.Background(), fakeApp.ID).Return(&fakeApp, nil)
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByIDMemory(fakeApp.ID).Return(&fakeApp, nil)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, memory, l
 			},
 			want: &fakeAppResponse,
 		},
@@ -344,13 +363,15 @@ func TestService_FindAppByID(t *testing.T) {
 				ctx: context.Background(),
 				app: model.FindAppointmentsByIDRequest{ID: fakeApp.ID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByIDMemory(fakeApp.ID).Return(nil, appErr.ErrMemoryDatabase)
 				memory.EXPECT().CreateAppMemoryByID(fakeApp)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByID(context.Background(), fakeApp.ID).Return(&fakeApp, nil)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				return repo, memory, l
 			},
 			want: &fakeAppResponse,
 		},
@@ -360,24 +381,27 @@ func TestService_FindAppByID(t *testing.T) {
 				ctx: context.Background(),
 				app: model.FindAppointmentsByIDRequest{ID: fakeApp.ID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByIDMemory(fakeApp.ID).Return(nil, appErr.ErrMemoryDatabase)
 				memory.EXPECT().CreateAppMemoryByID(fakeApp)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByID(context.Background(), fakeApp.ID).Return(nil, appErr.ErrNotFound)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				return repo, memory, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, m := tt.init()
+			r, m, l := tt.init()
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.FindAppByID(tt.args.ctx, tt.args.app)
 			assert.ErrorIs(t, err, tt.err)
@@ -396,7 +420,7 @@ func TestService_FindAppByUserID(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI)
+		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI)
 		want []model.AppResponse
 		err  error
 	}{
@@ -406,12 +430,13 @@ func TestService_FindAppByUserID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppByUser{ID: fakeApp.UserID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByUserID(context.Background(), fakeApp.UserID).Return([]model.Appointment{fakeApp}, nil)
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByUserIDMemory(fakeApp.UserID).Return([]model.Appointment{fakeApp}, nil)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, memory, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -421,13 +446,15 @@ func TestService_FindAppByUserID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppByUser{ID: fakeApp.UserID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByUserIDMemory(fakeApp.UserID).Return(nil, appErr.ErrMemoryDatabase)
 				memory.EXPECT().CreateAppMemoryByUserID([]model.Appointment{fakeApp}).Return(nil)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByUserID(context.Background(), fakeApp.UserID).Return([]model.Appointment{fakeApp}, nil)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				return repo, memory, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -437,23 +464,26 @@ func TestService_FindAppByUserID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppByUser{ID: fakeApp.UserID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppByUserIDMemory(fakeApp.UserID).Return(nil, appErr.ErrMemoryDatabase)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentByUserID(context.Background(), fakeApp.UserID).Return(nil, appErr.ErrNotFound)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, memory, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, m := tt.init()
+			r, m, l := tt.init()
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.FindAppByUserID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -472,7 +502,7 @@ func TestService_FindAppBySalonID(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI)
+		init func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI)
 		want []model.AppResponse
 		err  error
 	}{
@@ -482,11 +512,12 @@ func TestService_FindAppBySalonID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppBySalon{ID: fakeApp.SalonID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppBySalonIDMemory(fakeApp.SalonID).Return([]model.Appointment{fakeApp}, nil)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, memory, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -496,13 +527,15 @@ func TestService_FindAppBySalonID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppBySalon{ID: fakeApp.SalonID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppBySalonIDMemory(fakeApp.SalonID).Return(nil, appErr.ErrMemoryDatabase)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentBySalonID(context.Background(), fakeApp.SalonID).Return([]model.Appointment{fakeApp}, nil)
 				memory.EXPECT().CreateAppMemoryBySalonID([]model.Appointment{fakeApp}).Return(nil)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				return repo, memory, l
 			},
 			want: []model.AppResponse{fakeAppResponse},
 		},
@@ -512,23 +545,26 @@ func TestService_FindAppBySalonID(t *testing.T) {
 				ctx: context.Background(),
 				id:  model.FindAppBySalon{ID: fakeApp.SalonID},
 			},
-			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI) {
+			init: func() (*repository.MockAppointmentRepositoryI, *repository.MockAppointmentMemoryI, *log.MockAppointmentLogI) {
 				memory := repository.NewMockAppointmentMemoryI(ctrl)
 				memory.EXPECT().FindAppBySalonIDMemory(fakeApp.SalonID).Return(nil, appErr.ErrMemoryDatabase)
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
 				repo.EXPECT().FindAppointmentBySalonID(context.Background(), fakeApp.SalonID).Return(nil, appErr.ErrNotFound)
-				return repo, memory
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrMemoryDatabase).Return(nil)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, memory, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, m := tt.init()
+			r, m, l := tt.init()
 			s := &Service{
 				repository: r,
 				memory:     m,
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.FindAppBySalonID(tt.args.ctx, tt.args.id)
 			assert.ErrorIs(t, err, tt.err)
@@ -547,48 +583,111 @@ func TestService_MakeAppointment(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		init func() *repository.MockAppointmentRepositoryI
-		want []model.AppResponse
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
+		want *model.AppResponse
 		err  error
 	}{
 		{
 			name: "success, Appointment marked",
 			args: args{
 				ctx:  context.Background(),
-				make: model.MakeAppointment{ID: fakeApp.UserID},
+				make: model.MakeAppointment{ID: fakeApp.ID, UserID: fakeApp.UserID},
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
-				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.UserID).Return([]model.Appointment{fakeApp}, nil)
-				return repo
+				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(&fakeApp, nil)
+				l := log.NewMockAppointmentLogI(ctrl)
+				return repo, l
 			},
-			want: []model.AppResponse{fakeAppResponse},
+			want: &fakeAppResponse,
 		},
 		{
 			name: "fail, don't was possible found Appointment",
 			args: args{
 				ctx:  context.Background(),
-				make: model.MakeAppointment{ID: fakeApp.UserID},
+				make: model.MakeAppointment{ID: fakeApp.ID, UserID: fakeApp.UserID},
 			},
-			init: func() *repository.MockAppointmentRepositoryI {
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
 				repo := repository.NewMockAppointmentRepositoryI(ctrl)
-				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.UserID).Return(nil, appErr.ErrNotFound)
-				return repo
+				repo.EXPECT().MakeAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(nil, appErr.ErrNotFound)
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return repo, l
 			},
 			err: appErr.ErrNotFound,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := tt.init()
+			r, l := tt.init()
 			s := &Service{
 				repository: r,
 				memory:     repository.NewMockAppointmentMemoryI(ctrl),
-				log:        log.NewMockLogger(ctrl),
+				log:        l,
 			}
 			got, err := s.MakeAppointment(tt.args.ctx, tt.args.make)
 			assert.ErrorIs(t, err, tt.err)
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestService_DeleteApp(t *testing.T) {
+	var ctrl = gomock.NewController(t)
+	ctrl.Finish()
+	type args struct {
+		ctx context.Context
+		app model.DeleteAppointment
+	}
+	tests := []struct {
+		name string
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
+		args args
+		err  error
+	}{
+		{
+			name: "success, deleted appointment",
+			args: args{
+				ctx: context.Background(),
+				app: model.DeleteAppointment{
+					ID: fakeApp.ID,
+				},
+			},
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
+				r := repository.NewMockAppointmentRepositoryI(ctrl)
+				r.EXPECT().DeleteAppointment(context.Background(), fakeApp.ID).Return(nil)
+				l := log.NewMockAppointmentLogI(ctrl)
+				return r, l
+			},
+		},
+		{
+			name: "fail, do not found app for delete",
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
+				r := repository.NewMockAppointmentRepositoryI(ctrl)
+				r.EXPECT().DeleteAppointment(context.Background(), fakeApp.ID).Return(appErr.ErrNotFound)
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound).Return(nil)
+				return r, l
+			},
+			args: args{
+				ctx: context.Background(),
+				app: model.DeleteAppointment{
+					ID: fakeApp.ID,
+				},
+			},
+			err: appErr.ErrNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
+			s := &Service{
+				repository: r,
+				memory:     repository.NewMockAppointmentMemoryI(ctrl),
+				log:        l,
+			}
+			err := s.DeleteApp(tt.args.ctx, tt.args.app)
+			assert.ErrorIs(t, err, tt.err)
 		})
 	}
 }

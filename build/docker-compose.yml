@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  message-broker:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit
+    ports:
+      - 5672:5672   # for sender and consumer connections
+      - 15672:15672 # for serve RabbitMQ GUI
+    environment:
+      - RABBITMQ_DEFAULT_PASS=${RABBIT_PASSWORD}
+      - RABBITMQ_DEFAULT_USER=${RABBIT_USER}
+    # volumes:
+    #   - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+    #   - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    restart: always
+    networks:
+      - app-network
+  
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_PASSWORD=${SPLUNK_PASSWORD}
+      - SPLUNK_START_ARGS=--accept-license"
+    ports:
+      - "8000:8000"
+      - "8088:8088"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

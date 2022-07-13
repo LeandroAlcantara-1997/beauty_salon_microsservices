@@ -2,7 +2,7 @@
 
 Appointments is a service for keep salon and user appointments.
 
-## How to run project?
+## **How to run project?**
 
 1. Create a file .env and setup env variables with name .env in folder build 
 2. Create a file application.env and setup env variables with name application.env in folder env
@@ -10,3 +10,38 @@ Appointments is a service for keep salon and user appointments.
 ~~~make
 make docker
 ~~~
+
+## **Setup envs before create container and runner application**
+~~~env
+API_HOST_PORT="0.0.0.0:8081"
+API_GRACEFUL_WAIT_TIME="30s"
+
+MONGO_HOST=
+MONGO_USER=
+MONGO_PASSWORD=
+MONGO_DATABASE=
+MONGO_COLLECTION=
+
+REDIS_PASSWORD=
+REDIS_HOST=
+
+MONGO_EXPRESS_USER=
+MONGO_EXPRESS_PASSWORD=
+
+RABBIT_USER=
+RABBIT_PASS=
+
+SPLUNK_HOST=
+SPLUNK_PASSWORD=
+SPLUNK_TOKEN=
+SPLUNK_SOURCE=
+SPLUNK_SOURCETYPE=
+SPLUNK_INDEX=
+
+
+DD_ENV="development"
+DD_SERVICE="scaffolding"
+DD_WITH_PROFILER=false
+~~~
+
+## **Look at project progress on [kanban board](https://github.com/LeandroAlcantara-1997/beauty_salon_microsservices/projects/1)**
