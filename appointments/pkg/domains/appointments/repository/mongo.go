@@ -64,6 +64,7 @@ func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) erro
 	if err != nil {
 		return errors.Wrap(appErr.ErrDatabase, err.Error())
 	}
+
 	coll := m.client.Database(m.database).Collection(m.collection)
 	result, err := coll.DeleteOne(ctx, bson.M{"_id": _id})
 	if err != nil {
@@ -71,7 +72,7 @@ func (m *MongoRepository) DeleteAppointment(ctx context.Context, id string) erro
 	}
 
 	if result.DeletedCount == 0 {
-		return err
+		return appErr.ErrNotFound
 	}
 
 	return nil
