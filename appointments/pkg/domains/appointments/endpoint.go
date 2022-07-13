@@ -143,3 +143,19 @@ func AvailableAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
 		return app, nil
 	}
 }
+
+func CancelAppointment(svc service.AppointmentServiceI) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req, ok := request.(model.MakeAppointment)
+		if !ok {
+			return nil, errors.Wrap(appErr.ErrTypeAssertion, "cannot convert request -> MakeAppointment")
+		}
+
+		err := svc.CancelAppointment(ctx, req)
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, nil
+	}
+}

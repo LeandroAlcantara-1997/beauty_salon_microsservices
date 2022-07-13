@@ -691,3 +691,65 @@ func TestService_DeleteApp(t *testing.T) {
 		})
 	}
 }
+
+func TestService_CancelAppointment(t *testing.T) {
+	var ctrl = gomock.NewController(t)
+	ctrl.Finish()
+	type args struct {
+		ctx context.Context
+		app model.MakeAppointment
+	}
+	tests := []struct {
+		name string
+		init func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI)
+		args args
+		err  error
+	}{
+		{
+			name: "success, canceled appointment",
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
+				r := repository.NewMockAppointmentRepositoryI(ctrl)
+				r.EXPECT().CancelAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(nil)
+				l := log.NewMockAppointmentLogI(ctrl)
+				return r, l
+			},
+			args: args{
+				ctx: context.Background(),
+				app: model.MakeAppointment{
+					ID:     fakeApp.ID,
+					UserID: fakeApp.UserID,
+				},
+			},
+		},
+		{
+			name: "fail, don't possible cancel appointment",
+			init: func() (*repository.MockAppointmentRepositoryI, *log.MockAppointmentLogI) {
+				r := repository.NewMockAppointmentRepositoryI(ctrl)
+				r.EXPECT().CancelAppointment(context.Background(), fakeApp.ID, fakeApp.UserID).Return(appErr.ErrNotFound)
+				l := log.NewMockAppointmentLogI(ctrl)
+				l.EXPECT().LogWithTime(appErr.ErrNotFound)
+				return r, l
+			},
+			args: args{
+				ctx: context.Background(),
+				app: model.MakeAppointment{
+					ID:     fakeApp.ID,
+					UserID: fakeApp.UserID,
+				},
+			},
+			err: appErr.ErrNotFound,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r, l := tt.init()
+			s := &Service{
+				repository: r,
+				memory:     repository.NewMockAppointmentMemoryI(ctrl),
+				log:        l,
+			}
+			err := s.CancelAppointment(tt.args.ctx, tt.args.app)
+			assert.ErrorIs(t, err, tt.err)
+		})
+	}
+}

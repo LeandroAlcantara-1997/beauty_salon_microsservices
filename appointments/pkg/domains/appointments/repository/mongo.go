@@ -174,3 +174,29 @@ func (m *MongoRepository) AvaiableAppointment(ctx context.Context) ([]model.Appo
 	}
 	return app, nil
 }
+
+func (m *MongoRepository) CancelAppointment(ctx context.Context, id string, user int) error {
+	var app model.Appointment
+	_id, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+	coll := m.client.Database(m.database).Collection(m.collection)
+	if err := coll.FindOne(ctx, bson.M{"_id": _id}).Decode(&app); err != nil {
+		return errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+	if app.UserID != user {
+		return errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+	app.ID = ""
+	app.UserID = 0
+	result, err := coll.UpdateByID(ctx, _id, bson.M{"$set": &app})
+	if err != nil {
+		return errors.Wrap(appErr.ErrDatabase, err.Error())
+	}
+
+	if result.ModifiedCount == 0 {
+		return appErr.ErrDatabase
+	}
+	return nil
+}

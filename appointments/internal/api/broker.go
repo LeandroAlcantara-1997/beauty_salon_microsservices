@@ -7,7 +7,7 @@ import (
 )
 
 func Broker(ch *amqp.Channel, dep *container.Dependency) error {
-	if err := transport.NewBroke(dep.Services.Appointments, ch); err != nil {
+	if err := transport.NewBroker(dep.Services.Appointments, ch); err != nil {
 		return err
 	}
 

@@ -14,6 +14,7 @@ type AppointmentServiceI interface {
 	CreateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	UpdateAppointment(context.Context, model.UpsertAppointment) (*model.AppResponse, error)
 	MakeAppointment(context.Context, model.MakeAppointment) (*model.AppResponse, error)
+	CancelAppointment(context.Context, model.MakeAppointment) error
 	FindAllAppointments(context.Context) ([]model.AppResponse, error)
 	FindAvailableAppointments(context.Context) ([]model.AppResponse, error)
 	FindAppByID(context.Context, model.FindAppointmentsByIDRequest) (*model.AppResponse, error)
@@ -161,6 +162,14 @@ func (s *Service) MakeAppointment(ctx context.Context, make model.MakeAppointmen
 
 func (s *Service) DeleteApp(ctx context.Context, app model.DeleteAppointment) error {
 	if err := s.repository.DeleteAppointment(ctx, app.ID); err != nil {
+		_ = s.log.LogWithTime(err)
+		return err
+	}
+	return nil
+}
+
+func (s *Service) CancelAppointment(ctx context.Context, app model.MakeAppointment) error {
+	if err := s.repository.CancelAppointment(ctx, app.ID, app.UserID); err != nil {
 		_ = s.log.LogWithTime(err)
 		return err
 	}

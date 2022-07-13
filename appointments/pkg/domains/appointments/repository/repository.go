@@ -18,7 +18,6 @@ type Querier interface {
 	FindAppointmentByID(context.Context, string) (*model.Appointment, error)
 	FindAppointmentByUserID(context.Context, int) ([]model.Appointment, error)
 	FindAppointmentBySalonID(context.Context, int) ([]model.Appointment, error)
-	MakeAppointment(context.Context, string, int) (*model.Appointment, error)
 	AvaiableAppointment(context.Context) ([]model.Appointment, error)
 }
 
@@ -26,6 +25,8 @@ type Execer interface {
 	CreateAppointment(context.Context, model.Appointment) (*model.Appointment, error)
 	UpdateAppointment(context.Context, model.Appointment) (*model.Appointment, error)
 	DeleteAppointment(context.Context, string) error
+	MakeAppointment(context.Context, string, int) (*model.Appointment, error)
+	CancelAppointment(context.Context, string, int) error
 }
 
 type AppointmentMemoryI interface {

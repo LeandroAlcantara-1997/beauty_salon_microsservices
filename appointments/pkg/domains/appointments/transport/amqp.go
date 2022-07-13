@@ -17,7 +17,7 @@ import (
 
 const queue = 2
 
-func NewBroke(svc service.AppointmentServiceI, ch amqp.Channel) error {
+func NewBroker(svc service.AppointmentServiceI, ch amqp.Channel) error {
 	wg := new(sync.WaitGroup)
 	wg.Add(queue)
 	options := []amqp.SubscriberOption{
@@ -31,7 +31,7 @@ func NewBroke(svc service.AppointmentServiceI, ch amqp.Channel) error {
 		options...,
 	).ServeDelivery(ch)
 
-	createMessage, err := ch.Consume("create", "", false, false, false, false, nil)
+	createMessage, err := ch.Consume("create-appointment", "", false, false, false, false, nil)
 	if err != nil {
 		return err
 	}
@@ -43,7 +43,7 @@ func NewBroke(svc service.AppointmentServiceI, ch amqp.Channel) error {
 		options...,
 	).ServeDelivery(ch)
 
-	makeMessage, err := ch.Consume("make", "", false, false, false, false, nil)
+	makeMessage, err := ch.Consume("make-appointment", "", false, false, false, false, nil)
 	if err != nil {
 		return err
 	}

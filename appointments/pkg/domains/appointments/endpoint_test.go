@@ -486,3 +486,53 @@ func TestAvailableAppointment(t *testing.T) {
 		})
 	}
 }
+
+func TestCancelAppointment(t *testing.T) {
+	var ctrl = gomock.NewController(t)
+	ctrl.Finish()
+	type args struct {
+		svc     *service.MockAppointmentServiceI
+		request interface{}
+		ctx     context.Context
+	}
+	tests := []struct {
+		name     string
+		args     args
+		init     func(s *service.MockAppointmentServiceI, ctx context.Context)
+		response interface{}
+		err      error
+	}{
+		{
+			name: "success",
+			args: args{
+				svc:     service.NewMockAppointmentServiceI(ctrl),
+				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeAppResponse.UserID},
+				ctx:     context.Background(),
+			},
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
+				s.EXPECT().CancelAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(nil)
+			},
+			response: nil,
+		},
+		{
+			name: "fail, return error",
+			args: args{
+				svc:     service.NewMockAppointmentServiceI(ctrl),
+				request: model.MakeAppointment{ID: fakeUpsert.ID, UserID: fakeAppResponse.UserID},
+				ctx:     context.Background(),
+			},
+			init: func(s *service.MockAppointmentServiceI, ctx context.Context) {
+				s.EXPECT().CancelAppointment(ctx, model.MakeAppointment{ID: fakeAppResponse.ID, UserID: fakeAppResponse.UserID}).Return(appErr.ErrDatabase)
+			},
+			err: appErr.ErrDatabase,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tt.init(tt.args.svc, tt.args.ctx)
+			response, err := CancelAppointment(tt.args.svc)(tt.args.ctx, tt.args.request)
+			assert.ErrorIs(t, err, tt.err)
+			assert.Equal(t, tt.response, response)
+		})
+	}
+}

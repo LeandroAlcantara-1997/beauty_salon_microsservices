@@ -65,9 +65,17 @@ func NewHTTPHandler(svc service.AppointmentServiceI) stdHTTP.Handler {
 		codeHTTP{200}.encodeResponse,
 		options...,
 	)
+
 	deleteApp := http.NewServer(
 		appointments.DeleteAppointment(svc),
 		decodeDeleteApp,
+		codeHTTP{204}.encodeResponse,
+		options...,
+	)
+
+	cancelApp := http.NewServer(
+		appointments.CancelAppointment(svc),
+		decodeCancelApp,
 		codeHTTP{204}.encodeResponse,
 		options...,
 	)
@@ -80,6 +88,7 @@ func NewHTTPHandler(svc service.AppointmentServiceI) stdHTTP.Handler {
 	r.Get("/salon/{id}", findAppBySalonID.ServeHTTP)
 	r.Get("/available", availableApp.ServeHTTP)
 	r.Put("/{id}", updateApp.ServeHTTP)
+	r.Put("/{id}/{user}", cancelApp.ServeHTTP)
 	r.Delete("/{id}", deleteApp.ServeHTTP)
 
 	return r
@@ -148,6 +157,22 @@ func decodeDeleteApp(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 
 func decodeAvailableApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	return nil, nil
+}
+
+func decodeCancelApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
+	var (
+		app model.MakeAppointment
+		err error
+	)
+	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
+		return nil, appErr.ErrInvalidPath
+	}
+
+	if app.UserID, err = strconv.Atoi(chi.URLParam(r, "user")); err != nil {
+		return nil, appErr.ErrInvalidPath
+	}
+
+	return app, nil
 }
 
 type codeHTTP struct {

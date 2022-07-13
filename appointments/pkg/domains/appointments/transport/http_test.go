@@ -391,3 +391,80 @@ func Test_decodeAvailableApp(t *testing.T) {
 		})
 	}
 }
+
+func Test_decodeCancelApp(t *testing.T) {
+	type args struct {
+		ctx context.Context
+		r   *stdHTTP.Request
+	}
+	tests := []struct {
+		name string
+		args args
+		init func(r *stdHTTP.Request) *stdHTTP.Request
+		want interface{}
+		err  error
+	}{
+		{
+			name: "success, decode cancel",
+			args: args{
+				ctx: context.Background(),
+				r: httptest.NewRequest(
+					"PUT",
+					"/{id}/{user}",
+					strings.NewReader(`{}`),
+				),
+			},
+			init: func(r *stdHTTP.Request) *stdHTTP.Request {
+				chiCtx := chi.NewRouteContext()
+				chiCtx.URLParams.Add("id", "628ed8e442c5ab8d69b6d4fa")
+				chiCtx.URLParams.Add("user", "1")
+				return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chiCtx))
+			},
+			want: model.MakeAppointment{ID: "628ed8e442c5ab8d69b6d4fa", UserID: 1},
+		},
+		{
+			name: "fail, empty user id",
+			args: args{
+				ctx: context.Background(),
+				r: httptest.NewRequest(
+					"PUT",
+					"/{id}/{user}",
+					strings.NewReader(`{}`),
+				),
+			},
+			init: func(r *stdHTTP.Request) *stdHTTP.Request {
+				chiCtx := chi.NewRouteContext()
+				chiCtx.URLParams.Add("id", "628ed8e442c5ab8d69b6d4fa")
+				chiCtx.URLParams.Add("user", "")
+				return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chiCtx))
+			},
+			err: apErr.ErrInvalidPath,
+		},
+		{
+			name: "fail, empty id",
+			args: args{
+				ctx: context.Background(),
+				r: httptest.NewRequest(
+					"PUT",
+					"/{id}/{user}",
+					strings.NewReader(`{}`),
+				),
+			},
+			init: func(r *stdHTTP.Request) *stdHTTP.Request {
+				chiCtx := chi.NewRouteContext()
+				chiCtx.URLParams.Add("id", "")
+				chiCtx.URLParams.Add("user", "1")
+				return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, chiCtx))
+			},
+			err: apErr.ErrInvalidPath,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := tt.init(tt.args.r)
+			got, err := decodeCancelApp(tt.args.ctx, r)
+			assert.ErrorIs(t, err, tt.err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
