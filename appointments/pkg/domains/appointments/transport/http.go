@@ -102,6 +102,21 @@ func decodeFindAppByID(_ context.Context, r *stdHTTP.Request) (interface{}, erro
 	return app, nil
 }
 
+// ShowAccount godoc
+// @Summary      Update an appointment
+// @Description  get string by ID and body for update
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Failure      400  {}  Cannot read path Invalid body
+// @Success      200  {object}   model.AppResponse
+// @Param        id   path      string  true  "Appointment ID"
+// @Param appointment body string true "body appointment"
+// SchemaExample({\n"user_id": 1,\n"salon_id": 2,\n"appointment_date": "2022-06-23T21:12:02.000000001Z"\n})
+// @Router       /appointment/{id} [put]
 func decodeUpdateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var app model.UpsertAppointment
 	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
@@ -119,10 +134,34 @@ func decodeUpdateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 	return app, nil
 }
 
+// ShowAccount godoc
+// @Summary      Get all appointments
+// @Description  get all appointments
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Success      200  {array}   model.AppResponse
+// @Router       /appointment [get]
 func decodeAllApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	return nil, nil
 }
 
+// ShowAccount godoc
+// @Summary      Get appointments by user ids
+// @Description  get string by user ID and return an appointment
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Failure      400  {}  Cannot read path
+// @Success      200  {array}   model.AppResponse
+// @Param        id   path      int  true  "User ID"
+// @Router       /appointment/user/{id} [get]
 func decodeAppByUser(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var (
 		app model.FindAppByUser
@@ -135,6 +174,19 @@ func decodeAppByUser(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 	return app, nil
 }
 
+// ShowAccount godoc
+// @Summary      Get appointments by user ids
+// @Description  get string by salon ID and return an appointment
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Failure      400  {}  Cannot read path
+// @Success      200  {array}   model.AppResponse
+// @Param        id   path      int  true  "Salon ID"
+// @Router       /appointment/salon/{id} [get]
 func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var (
 		app model.FindAppBySalon
@@ -147,6 +199,19 @@ func decodeAppBySalon(_ context.Context, r *stdHTTP.Request) (interface{}, error
 	return app, nil
 }
 
+// ShowAccount godoc
+// @Summary      Delete appointments by id
+// @Description  get string by ID and delete an appointment
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Failure      400  {}  Cannot read path
+// @Success      204
+// @Param        id   path      string  true  "Appointment ID"
+// @Router       /appointment/{id} [delete]
 func decodeDeleteApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	var app model.DeleteAppointment
 	if app.ID = chi.URLParam(r, "id"); app.ID == "" {
@@ -155,6 +220,17 @@ func decodeDeleteApp(_ context.Context, r *stdHTTP.Request) (interface{}, error)
 	return app, nil
 }
 
+// ShowAccount godoc
+// @Summary      Get available appointments
+// @Description  get all available appointments
+// @Tags         appointment
+// @Accept       json
+// @Produce      json
+// @Failure      500  {}  Sorry, we cannot create a new appointment
+// @Failure      404  {}  Appointment not found
+// @Failure      400  {}  An error happened in database
+// @Success      200  {array}   model.AppResponse
+// @Router       /appointment/available [get]
 func decodeAvailableApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
 	return nil, nil
 }

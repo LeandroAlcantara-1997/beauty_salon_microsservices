@@ -54,3 +54,7 @@ build-dep:
 .PHONY: hot
 hot:
 	@air	
+
+.PHONY: doc
+doc:
+	@swag init -g cmd/api/main.go	

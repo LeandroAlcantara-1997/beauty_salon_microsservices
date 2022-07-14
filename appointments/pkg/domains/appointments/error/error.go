@@ -36,9 +36,9 @@ type restError map[error]errorResponse
 // RESTErrorBussines Errors you want to map to more meaning response for clients and set specific
 // HTTP status code should be included here
 var RESTErrorBussines = restError{
-	ErrNew:            {"Sorry, we cannot create a new quote", http.StatusInternalServerError},
+	ErrNew:            {"Sorry, we cannot create a new appointment", http.StatusInternalServerError},
 	sql.ErrNoRows:     {"Record not found", http.StatusNotFound},
-	ErrNotFound:       {"Appointment not found", http.StatusBadRequest},
+	ErrNotFound:       {"Appointment not found", http.StatusNotFound},
 	ErrDatabase:       {"An error happened in database", http.StatusBadRequest},
 	ErrInvalidPath:    {"Cannot read path", http.StatusBadRequest},
 	ErrInvalidBody:    {"Invalid body", http.StatusBadRequest},

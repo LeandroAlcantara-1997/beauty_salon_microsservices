@@ -5,10 +5,10 @@ import (
 )
 
 type UpsertAppointment struct {
-	ID              string    `json:"id,omitempty"`
-	UserID          int       `json:"user_id"`
-	SalonID         int       `json:"salon_id" validate:"required"`
-	AppointmentDate time.Time `json:"appointment_date" validate:"required"`
+	ID              string    `json:"id,omitempty" example:"62b65300e1d7eab1ea9a681d"`
+	UserID          int       `json:"user_id" example:"1"`
+	SalonID         int       `json:"salon_id" validate:"required" example:"1"`
+	AppointmentDate time.Time `json:"appointment_date" validate:"required" example:"2022-06-23T21:12:02.000000001Z"`
 }
 
 type DeleteAppointment struct {
@@ -28,10 +28,10 @@ type FindAppBySalon struct {
 }
 
 type AppResponse struct {
-	ID              string    `json:"id"`
-	UserID          int       `json:"user_id"`
-	SalonID         int       `json:"salon_id"`
-	AppointmentDate time.Time `json:"appointment_date"`
+	ID              string    `json:"id" example:"62b65300e1d7eab1ea9a681d"`
+	UserID          int       `json:"user_id" example:"1"`
+	SalonID         int       `json:"salon_id" example:"1"`
+	AppointmentDate time.Time `json:"appointment_date" example:"2022-06-23T21:12:02.000000001Z"`
 }
 
 type MakeAppointment struct {

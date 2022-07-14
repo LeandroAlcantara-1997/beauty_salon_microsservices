@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	_ "github.com/LeandroAlcantara-1997/appointment/docs"
 	"github.com/LeandroAlcantara-1997/appointment/internal/api"
 	"github.com/LeandroAlcantara-1997/appointment/internal/config"
 	"github.com/LeandroAlcantara-1997/appointment/internal/container"
@@ -15,6 +16,21 @@ import (
 
 	_ "github.com/golang/mock/mockgen/model"
 )
+
+// @title           Appointment API
+// @version         1.0
+// @description     This is a service for make appointments .
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   API Support
+// @contact.url    https://github.com/LeandroAlcantara-1997
+// @contact.email  leandro1997silva97@gmail.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /v1/appointment
 
 func main() {
 	// root context of application
