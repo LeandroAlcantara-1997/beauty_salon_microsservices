@@ -5,8 +5,16 @@ Appointments is a service for keep salon and user appointments.
 ## [**Swagger documentation**](http://localhost:8080/swagger/index.html#/)
 ## **How to run project?**
 
+# What was used in the project?
+
+* Golang
+* Docker 
+* Redis
+* Mongo
+* RabbitMQ
+
 1. Create a file .env and setup env variables with name .env in folder build 
-2. Create a file application.env and setup env variables with name application.env in folder env
+2. Create a file application.env and setup env variables with name in folder env
 3. Execute:
 ~~~make
 make docker
@@ -35,6 +43,7 @@ SPLUNK_TOKEN=
 SPLUNK_SOURCE=
 SPLUNK_SOURCETYPE=
 SPLUNK_INDEX=
+SPLUNK_PORT=
 
 
 DD_ENV="development"

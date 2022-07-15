@@ -6,7 +6,12 @@ Beauty salon microsservices is a project for make user's appointmens in a beauty
 
 1. Have a Docker installed
 
-2. Setup env variables for each service (read each service's documentation) and create an .env file in folder builder with credentials of external tools
+2. Setup env variables for each service (read each service's documentation) and create an .env file in folder build with credentials of external tools.
+~~~env
+RABBIT_PASSWORD=
+RABBIT_USER=
+SPLUNK_PASSWORD=password
+~~~
 - [appointments](appointments/README.md)
 
 3. Open your terminal and execute: 
