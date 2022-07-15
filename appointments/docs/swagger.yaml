@@ -23,8 +23,8 @@ info:
     url: https://github.com/LeandroAlcantara-1997
   description: This is a service for make appointments .
   license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    name: MIT
+    url: https://choosealicense.com/licenses/mit/
   termsOfService: http://swagger.io/terms/
   title: Appointment API
   version: "1.0"
@@ -33,7 +33,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get all appointments
+      description: Get all appointments
       produces:
       - application/json
       responses:
@@ -43,18 +43,14 @@ paths:
             items:
               $ref: '#/definitions/model.AppResponse'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            type: ""
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
+            type: string
       summary: Get all appointments
       tags:
       - appointment
@@ -75,35 +71,41 @@ paths:
         "204":
           description: ""
         "400":
-          description: Bad Request
+          description: Cannot read path
           schema:
-            type: ""
+            type: string
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
+            type: string
       summary: Delete appointments by id
       tags:
       - appointment
     put:
       consumes:
       - application/json
-      description: get string by ID and body for update
+      description: Get Appointment by ID and body for update
       parameters:
       - description: Appointment ID
         in: path
         name: id
         required: true
         type: string
-      - description: body appointment
+      - description: Appointment
         in: body
         name: appointment
         required: true
         schema:
+          example: |-
+            {
+            "user_id": 1,
+            "salon_id": 2,
+            "appointment_date": "2022-06-23T21:12:02.000000001Z"
+            }
           type: string
       produces:
       - application/json
@@ -113,18 +115,54 @@ paths:
           schema:
             $ref: '#/definitions/model.AppResponse'
         "400":
-          description: Bad Request
+          description: Cannot read path
           schema:
-            type: ""
+            type: string
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
+            type: string
       summary: Update an appointment
+      tags:
+      - appointment
+  /appointment/{id}/{user}:
+    put:
+      consumes:
+      - application/json
+      description: cancel appointment by ID and user id
+      parameters:
+      - description: Appointment ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: path
+        name: user
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Cannot read path
+          schema:
+            type: string
+        "404":
+          description: Appointment not found
+          schema:
+            type: string
+        "500":
+          description: An error happened in database
+          schema:
+            type: string
+      summary: Cancel an appointment
       tags:
       - appointment
   /appointment/available:
@@ -141,18 +179,14 @@ paths:
             items:
               $ref: '#/definitions/model.AppResponse'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            type: ""
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
+            type: string
       summary: Get available appointments
       tags:
       - appointment
@@ -160,7 +194,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: get string by salon ID and return an appointment
+      description: get by salon ID and return an appointment
       parameters:
       - description: Salon ID
         in: path
@@ -177,25 +211,25 @@ paths:
               $ref: '#/definitions/model.AppResponse'
             type: array
         "400":
-          description: Bad Request
+          description: Cannot read path
           schema:
-            type: ""
+            type: string
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
-      summary: Get appointments by user ids
+            type: string
+      summary: Get appointments by salon id
       tags:
       - appointment
   /appointment/user/{id}:
     get:
       consumes:
       - application/json
-      description: get string by user ID and return an appointment
+      description: Get by user ID and return an appointment
       parameters:
       - description: User ID
         in: path
@@ -212,18 +246,18 @@ paths:
               $ref: '#/definitions/model.AppResponse'
             type: array
         "400":
-          description: Bad Request
+          description: Cannot read path
           schema:
-            type: ""
+            type: string
         "404":
-          description: Not Found
+          description: Appointment not found
           schema:
-            type: ""
+            type: string
         "500":
-          description: Internal Server Error
+          description: An error happened in database
           schema:
-            type: ""
-      summary: Get appointments by user ids
+            type: string
+      summary: Get appointments by user id
       tags:
       - appointment
 swagger: "2.0"

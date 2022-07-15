@@ -39,7 +39,7 @@ var RESTErrorBussines = restError{
 	ErrNew:            {"Sorry, we cannot create a new appointment", http.StatusInternalServerError},
 	sql.ErrNoRows:     {"Record not found", http.StatusNotFound},
 	ErrNotFound:       {"Appointment not found", http.StatusNotFound},
-	ErrDatabase:       {"An error happened in database", http.StatusBadRequest},
+	ErrDatabase:       {"An error happened in database", http.StatusInternalServerError},
 	ErrInvalidPath:    {"Cannot read path", http.StatusBadRequest},
 	ErrInvalidBody:    {"Invalid body", http.StatusBadRequest},
 	ErrMemoryDatabase: {"Memory Database error", http.StatusBadRequest},

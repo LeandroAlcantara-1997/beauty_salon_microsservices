@@ -26,8 +26,8 @@ import (
 // @contact.url    https://github.com/LeandroAlcantara-1997
 // @contact.email  leandro1997silva97@gmail.com
 
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+// @license.name  MIT
+// @license.url   https://choosealicense.com/licenses/mit/
 
 // @host      localhost:8080
 // @BasePath  /v1/appointment

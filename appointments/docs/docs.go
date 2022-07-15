@@ -17,8 +17,8 @@ const docTemplate = `{
             "email": "leandro1997silva97@gmail.com"
         },
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "MIT",
+            "url": "https://choosealicense.com/licenses/mit/"
         },
         "version": "{{.Version}}"
     },
@@ -27,7 +27,7 @@ const docTemplate = `{
     "paths": {
         "/appointment": {
             "get": {
-                "description": "get all appointments",
+                "description": "Get all appointments",
                 "consumes": [
                     "application/json"
                 ],
@@ -48,22 +48,16 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": ""
-                        }
-                    },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 }
@@ -92,22 +86,16 @@ const docTemplate = `{
                             }
                         }
                     },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": ""
-                        }
-                    },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 }
@@ -115,7 +103,7 @@ const docTemplate = `{
         },
         "/appointment/salon/{id}": {
             "get": {
-                "description": "get string by salon ID and return an appointment",
+                "description": "get by salon ID and return an appointment",
                 "consumes": [
                     "application/json"
                 ],
@@ -125,7 +113,7 @@ const docTemplate = `{
                 "tags": [
                     "appointment"
                 ],
-                "summary": "Get appointments by user ids",
+                "summary": "Get appointments by salon id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -146,21 +134,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Cannot read path",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 }
@@ -168,7 +156,7 @@ const docTemplate = `{
         },
         "/appointment/user/{id}": {
             "get": {
-                "description": "get string by user ID and return an appointment",
+                "description": "Get by user ID and return an appointment",
                 "consumes": [
                     "application/json"
                 ],
@@ -178,7 +166,7 @@ const docTemplate = `{
                 "tags": [
                     "appointment"
                 ],
-                "summary": "Get appointments by user ids",
+                "summary": "Get appointments by user id",
                 "parameters": [
                     {
                         "type": "integer",
@@ -199,21 +187,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Cannot read path",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 }
@@ -221,7 +209,7 @@ const docTemplate = `{
         },
         "/appointment/{id}": {
             "put": {
-                "description": "get string by ID and body for update",
+                "description": "Get Appointment by ID and body for update",
                 "consumes": [
                     "application/json"
                 ],
@@ -241,12 +229,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "body appointment",
+                        "description": "Appointment",
                         "name": "appointment",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "string",
+                            "example": "{\n\"user_id\": 1,\n\"salon_id\": 2,\n\"appointment_date\": \"2022-06-23T21:12:02.000000001Z\"\n}"
                         }
                     }
                 ],
@@ -258,21 +247,21 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Cannot read path",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     }
                 }
@@ -303,21 +292,75 @@ const docTemplate = `{
                         "description": ""
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Cannot read path",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "Appointment not found",
                         "schema": {
-                            "type": ""
+                            "type": "string"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "An error happened in database",
                         "schema": {
-                            "type": ""
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/appointment/{id}/{user}": {
+            "put": {
+                "description": "cancel appointment by ID and user id",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "appointment"
+                ],
+                "summary": "Cancel an appointment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Appointment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "user",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Cannot read path",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Appointment not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "An error happened in database",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 }

@@ -2,6 +2,7 @@
 
 Appointments is a service for keep salon and user appointments.
 
+## [**Swagger documentation**](http://localhost:8080/swagger/index.html#/)
 ## **How to run project?**
 
 1. Create a file .env and setup env variables with name .env in folder build 
@@ -13,7 +14,7 @@ make docker
 
 ## **Setup envs before create container and runner application**
 ~~~env
-API_HOST_PORT="0.0.0.0:8081"
+API_HOST_PORT="0.0.0.0:8080"
 API_GRACEFUL_WAIT_TIME="30s"
 
 MONGO_HOST=
@@ -24,9 +25,6 @@ MONGO_COLLECTION=
 
 REDIS_PASSWORD=
 REDIS_HOST=
-
-MONGO_EXPRESS_USER=
-MONGO_EXPRESS_PASSWORD=
 
 RABBIT_USER=
 RABBIT_PASS=

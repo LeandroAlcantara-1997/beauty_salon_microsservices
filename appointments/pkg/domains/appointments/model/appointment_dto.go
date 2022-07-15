@@ -35,8 +35,8 @@ type AppResponse struct {
 }
 
 type MakeAppointment struct {
-	ID     string `json:"id" validate:"required"`
-	UserID int    `json:"user_id" validate:"required"`
+	ID     string `json:"id" validate:"required" example:"62b65300e1d7eab1ea9a681d"`
+	UserID int    `json:"user_id" validate:"required" example:"1"`
 }
 
 func NewAppResponse(appointment Appointment) AppResponse {
