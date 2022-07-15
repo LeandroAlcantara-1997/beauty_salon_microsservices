@@ -234,8 +234,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "string",
-                            "example": "{\n\"user_id\": 1,\n\"salon_id\": 2,\n\"appointment_date\": \"2022-06-23T21:12:02.000000001Z\"\n}"
+                            "type": "string"
                         }
                     }
                 ],

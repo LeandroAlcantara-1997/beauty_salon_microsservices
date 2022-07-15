@@ -100,12 +100,6 @@ paths:
         name: appointment
         required: true
         schema:
-          example: |-
-            {
-            "user_id": 1,
-            "salon_id": 2,
-            "appointment_date": "2022-06-23T21:12:02.000000001Z"
-            }
           type: string
       produces:
       - application/json

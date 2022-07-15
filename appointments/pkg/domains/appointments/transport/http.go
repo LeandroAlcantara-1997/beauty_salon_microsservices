@@ -126,7 +126,8 @@ func decodeFindAppByID(_ context.Context, r *stdHTTP.Request) (interface{}, erro
 // @Failure      400  {string} string "Cannot read path"
 // @Success      200  {object}   model.AppResponse
 // @Param        id   path      string  true  "Appointment ID"
-// @Param appointment body string true "Appointment" SchemaExample({\n"user_id": 1,\n"salon_id": 2,\n"appointment_date": "2022-06-23T21:12:02.000000001Z"\n})
+// @Param appointment body string true "Appointment"
+// SchemaExample({\n"user_id": 1,\n"salon_id": 2,\n"appointment_date": "2022-06-23T21:12:02.000000001Z"\n})
 // SchemaExample({\n"user_id": 1,\n"salon_id": 2,\n"appointment_date": "2022-06-23T21:12:02.000000001Z"\n})
 // @Router       /appointment/{id} [put]
 func decodeUpdateApp(_ context.Context, r *stdHTTP.Request) (interface{}, error) {
