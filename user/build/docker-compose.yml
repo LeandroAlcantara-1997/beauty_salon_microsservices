@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  user:
+    container_name: user
+    build: 
+      dockerfile: build/Dockerfile
+      context: ./../
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ..:/workspace
+    ports:
+      - "8081:8081"
