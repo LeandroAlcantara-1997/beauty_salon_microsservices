@@ -2,7 +2,6 @@
 
 Appointments is a service for keep salon and user appointments.
 
-## [**Swagger documentation**](http://localhost:8080/swagger/index.html#/)
 ## **How to run project?**
 
 # What was used in the project?
