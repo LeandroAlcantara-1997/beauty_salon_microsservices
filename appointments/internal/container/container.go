@@ -176,7 +176,9 @@ func setupComponents(ctx context.Context, envs envs) (*components, error) {
 
 	clientSplunk := splunk.NewClient(
 		nil,
-		fmt.Sprintf("http://%s:8088/services/collector/event", envs.Splunk.Host),
+		fmt.Sprintf("http://%s:%s/services/collector/event",
+			envs.Splunk.Host,
+			envs.Splunk.Port),
 		envs.Splunk.Token,
 		envs.Splunk.Source,
 		envs.Splunk.SourceType,

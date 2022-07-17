@@ -48,6 +48,7 @@ func (s *Service) CreateAppointment(ctx context.Context, app model.UpsertAppoint
 		err            error
 	)
 
+	// _ = s.log.LogWithTime(&app)
 	if appPersistence, err = s.repository.CreateAppointment(ctx, model.NewAppointment(app)); err != nil {
 		_ = s.log.LogWithTime(err)
 		return nil, err

@@ -8,4 +8,5 @@ type Config struct {
 	Source     string `env:"SOURCE, required"`
 	SourceType string `env:"SOURCETYPE, required"`
 	Index      string `env:"INDEX,required"`
+	Port       string `env:"PORT, required"`
 }
