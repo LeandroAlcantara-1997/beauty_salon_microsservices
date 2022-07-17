@@ -17,5 +17,5 @@ jobs:
         cache: maven
     - name: build
       run: |
-      cd user
-      mvn -B package --file pom.xml
+        cd user
+        mvn -B package --file pom.xml
