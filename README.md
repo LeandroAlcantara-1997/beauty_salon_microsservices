@@ -2,6 +2,13 @@
 
 Beauty salon microsservices is a project for make user's appointmens in a beauty salon
 
+## [Check out the documentation on the wiki](https://github.com/LeandroAlcantara-1997/beauty_salon_microsservices/wiki)
+
+## Architecture
+
+![beauty_architecture](doc/beauty.jpg)
+
+
 ## How to run project? 
 
 1. Have a Docker installed
